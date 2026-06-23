@@ -2,17 +2,23 @@
  * API Service Layer
  *
  * Centralized module for communicating with the Spring Boot backend.
- * All requests go through the Vite proxy (/api -> http://localhost:8081/api)
- * so there are no CORS issues during development.
+ * In development, requests default to the Vite proxy (/api -> http://localhost:8081/api).
+ * In production, set VITE_API_URL to your deployed backend base URL.
+ * Example: https://abstore-y9p6.onrender.com/api
  */
 
-const API_BASE = '/api';
+// const API_BASE = 'https://abstore-y9p6.onrender.com/api';
+// const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+const API_BASE = 'https://abstore-y9p6.onrender.com/api';
 
 /**
  * Generic fetch wrapper with error handling.
  */
 async function request(endpoint, options = {}) {
-  const url = `${API_BASE}${endpoint}`;
+  const normalizedEndpoint = endpoint.startsWith('/')
+    ? endpoint
+    : `/${endpoint}`;
+  const url = `${API_BASE}${normalizedEndpoint}`;
 
   const isFormData = options.body instanceof FormData;
 
@@ -43,7 +49,8 @@ async function request(endpoint, options = {}) {
     } catch {
       errorBody = { message: response.statusText };
     }
-    const errorMessage = errorBody.error || errorBody.message || `HTTP ${response.status}`;
+    const errorMessage =
+      errorBody.error || errorBody.message || `HTTP ${response.status}`;
     const error = new Error(errorMessage);
     error.status = response.status;
     error.body = errorBody;
