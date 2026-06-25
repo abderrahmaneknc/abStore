@@ -1,4 +1,4 @@
-import { getOptionGroupLabel } from '../../utils/productOptions';
+import { getOptionGroupLabel, parseProductOptions } from '../../utils/productOptions';
 
 export default function ProductOptionPicker({
   optionGroups = [],
@@ -8,13 +8,15 @@ export default function ProductOptionPicker({
   variant = 'light',
   t,
 }) {
-  if (!optionGroups.length) return null;
+  const groups = parseProductOptions(optionGroups);
+
+  if (!groups.length) return null;
 
   const isDark = variant === 'dark';
 
   return (
     <div className={compact ? 'space-y-2' : 'space-y-3'}>
-      {optionGroups.map((group) => (
+      {groups.map((group) => (
         <div key={group.name} className="flex min-w-0 items-center gap-2">
           <p
             className={`shrink-0 font-semibold whitespace-nowrap ${

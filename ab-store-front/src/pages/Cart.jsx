@@ -7,7 +7,7 @@
   import { useToast } from '../context/toast';
   import { getProductPrice } from '../data/products';
   import { wilayas } from '../data/wilayas';
-  import { formatSelectedOptions, getMissingOptions } from '../utils/productOptions';
+  import { formatSelectedOptions, getMissingOptions, parseProductOptions } from '../utils/productOptions';
 
   export default function Cart() {
     const {
@@ -104,7 +104,7 @@
       e.preventDefault();
 
       const itemsMissingOptions = cartItems.filter((item) => {
-        const optionGroups = item.product?.options || [];
+        const optionGroups = parseProductOptions(item.product?.options);
         return getMissingOptions(optionGroups, item.selectedOptions).length > 0;
       });
 
@@ -374,7 +374,10 @@
               
               {/* Cart Items List Mini */}
               <div className="mt-6 max-h-[520px] space-y-4 overflow-y-auto pr-2 scrollbar-hide">
-                {cartItems.map(({ key, product, quantity, selectedOptions }) => (
+                {cartItems.map(({ key, product, quantity, selectedOptions }) => {
+                  const optionGroups = parseProductOptions(product.options);
+
+                  return (
                   <div key={key} className="border-b border-gray-800 pb-4">
                     <div className="flex gap-4">
                       <img src={product.image} alt={product.name} className="h-16 w-16 rounded-md object-cover" />
@@ -396,7 +399,7 @@
                       </div>
                     </div>
 
-                    {(product.options || []).length > 0 && (
+                    {optionGroups.length > 0 && (
                       <div className="mt-3 rounded-lg border border-gray-700 bg-gray-800/60 p-3">
                         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-200">
                           {t('chooseOptions')}
@@ -405,7 +408,7 @@
                           compact
                           variant="dark"
                           t={t}
-                          optionGroups={product.options}
+                          optionGroups={optionGroups}
                           selectedOptions={selectedOptions || {}}
                           onSelect={(groupName, value) =>
                             handleCartOptionSelect({ key, selectedOptions }, groupName, value)
@@ -414,7 +417,8 @@
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="mt-6 space-y-3 text-sm text-gray-300">

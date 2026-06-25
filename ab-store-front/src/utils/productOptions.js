@@ -60,6 +60,64 @@ export const buildColorStorageOptions = (colors = [], storage = []) => {
   return groups;
 };
 
+const normalizeGroupValues = (values) => {
+  if (Array.isArray(values)) {
+    return values.map((value) => String(value).trim()).filter(Boolean);
+  }
+
+  if (typeof values === 'string') {
+    return values
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean);
+  }
+
+  if (values != null && values !== '') {
+    return [String(values).trim()].filter(Boolean);
+  }
+
+  return [];
+};
+
+const normalizeRawGroup = (group) => {
+  if (!group || typeof group !== 'object') return null;
+
+  const name = String(group.name ?? group.key ?? group.label ?? '').trim();
+  const values = normalizeGroupValues(group.values ?? group.value ?? group.options);
+
+  if (!name || values.length === 0) return null;
+
+  return { name, values };
+};
+
+const canonicalOptionName = (name) => {
+  const normalized = String(name || '').trim().toLowerCase();
+  if (matchesOptionKey(normalized, COLOR_KEYS)) return OPTION_COLOR;
+  if (matchesOptionKey(normalized, STORAGE_KEYS)) return OPTION_STORAGE;
+  return normalized;
+};
+
+const mergeOptionGroups = (groups) => {
+  const merged = new Map();
+
+  groups.forEach((group) => {
+    const key = canonicalOptionName(group.name);
+    const existing = merged.get(key);
+
+    if (existing) {
+      existing.values = [...new Set([...existing.values, ...group.values])];
+      return;
+    }
+
+    merged.set(key, {
+      name: key,
+      values: [...new Set(group.values)],
+    });
+  });
+
+  return Array.from(merged.values()).filter((group) => group.values.length > 0);
+};
+
 export const parseProductOptions = (options) => {
   if (!options) return [];
 
@@ -67,21 +125,19 @@ export const parseProductOptions = (options) => {
     const parsed = typeof options === 'string' ? JSON.parse(options) : options;
 
     if (Array.isArray(parsed)) {
-      return parsed
-        .filter((group) => group?.name && Array.isArray(group.values) && group.values.length > 0)
-        .map((group) => ({
-          name: group.name,
-          values: group.values.filter(Boolean),
-        }));
+      const groups = parsed
+        .map(normalizeRawGroup)
+        .filter(Boolean);
+
+      return mergeOptionGroups(groups);
     }
 
     if (parsed && typeof parsed === 'object') {
-      return Object.entries(parsed)
-        .filter(([, values]) => Array.isArray(values) && values.length > 0)
-        .map(([name, values]) => ({
-          name: name.charAt(0).toUpperCase() + name.slice(1),
-          values: values.filter(Boolean),
-        }));
+      const groups = Object.entries(parsed)
+        .map(([name, values]) => normalizeRawGroup({ name, values }))
+        .filter(Boolean);
+
+      return mergeOptionGroups(groups);
     }
   } catch {
     return [];
@@ -91,14 +147,16 @@ export const parseProductOptions = (options) => {
 };
 
 export const serializeProductOptions = (optionGroups) => {
-  const groups = (optionGroups || [])
-    .map((group) => ({
-      name: group.name?.trim(),
-      values: (group.values || [])
-        .map((value) => String(value).trim())
-        .filter(Boolean),
-    }))
-    .filter((group) => group.name && group.values.length > 0);
+  const groups = mergeOptionGroups(
+    (optionGroups || [])
+      .map((group) => normalizeRawGroup(group))
+      .filter(Boolean)
+  ).map((group) => ({
+    name: group.name?.trim(),
+    values: group.values
+      .map((value) => String(value).trim())
+      .filter(Boolean),
+  }));
 
   return groups.length > 0 ? JSON.stringify(groups) : null;
 };

@@ -8,7 +8,7 @@ import { useLanguage } from '../context/language';
 import { useStore } from '../context/store';
 import { useToast } from '../context/toast';
 import { getProductPrice } from '../data/products';
-import { getOptionGroupLabel, getMissingOptions } from '../utils/productOptions';
+import { getOptionGroupLabel, getMissingOptions, parseProductOptions } from '../utils/productOptions';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -33,7 +33,7 @@ export default function ProductDetails() {
   const { addToCart, toggleWishlist, wishlist } = useStore();
   const { toast } = useToast();
 
-  const optionGroups = product?.options || [];
+  const optionGroups = parseProductOptions(product?.options);
 
   const relatedProducts = useMemo(() => {
     if (!product) return [];

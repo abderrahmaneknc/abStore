@@ -46,6 +46,7 @@ const normalizeProduct = (product) => ({
   discountPercent: Number(product.discountPercent ?? product.discount) || 0,
   isNew: Boolean(product.isNew),
   isPromo: Boolean(product.isPromo ?? product.isPromotion),
+  options: parseProductOptions(product.options),
 });
 
 const normalizeBackendProduct = (product) => {
