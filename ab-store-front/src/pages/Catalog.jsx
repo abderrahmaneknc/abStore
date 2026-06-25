@@ -34,7 +34,7 @@ const normalizeBackendProduct = (product) => {
 
 export default function Catalog() {
   const { t } = useLanguage();
-  const { availableProducts: fallbackProducts } = useCatalog();
+  const { availableProducts: fallbackProducts, categories: catalogCategories } = useCatalog();
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -51,10 +51,11 @@ export default function Catalog() {
     () => ['all', ...new Set(fallbackProducts.map((product) => product.brand).filter(Boolean))],
     [fallbackProducts]
   );
-  const categories = useMemo(
-    () => ['all', ...new Set(fallbackProducts.map((product) => product.category).filter(Boolean))],
-    [fallbackProducts]
-  );
+  const categories = useMemo(() => {
+    const fromCatalog = catalogCategories.map((cat) => cat.name).filter(Boolean);
+    const fromProducts = fallbackProducts.map((product) => product.category).filter(Boolean);
+    return ['all', ...new Set([...fromCatalog, ...fromProducts])];
+  }, [catalogCategories, fallbackProducts]);
 
   // Fetch backend categories to map names to IDs
   useEffect(() => {

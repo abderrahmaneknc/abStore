@@ -1,3 +1,50 @@
+const COLOR_KEYS = ['couleur', 'color', 'colour', 'colors', 'couleurs'];
+const STORAGE_KEYS = ['stockage', 'storage', 'capacity', 'capacite', 'capacité', 'capacités'];
+
+const matchesOptionKey = (name, keys) =>
+  keys.some((key) => name.toLowerCase().includes(key));
+
+export const getOptionGroupLabel = (name, t) => {
+  if (!name) return '';
+  if (matchesOptionKey(name, COLOR_KEYS)) return t('color');
+  if (matchesOptionKey(name, STORAGE_KEYS)) return t('storage');
+  return name;
+};
+
+export const extractColorAndStorage = (options) => {
+  const groups = parseProductOptions(options);
+  let colors = [];
+  let storage = [];
+
+  groups.forEach((group) => {
+    if (matchesOptionKey(group.name, COLOR_KEYS)) {
+      colors = group.values;
+    } else if (matchesOptionKey(group.name, STORAGE_KEYS)) {
+      storage = group.values;
+    }
+  });
+
+  return { colors, storage };
+};
+
+export const OPTION_COLOR = 'color';
+export const OPTION_STORAGE = 'storage';
+
+export const buildColorStorageOptions = (colors = [], storage = []) => {
+  const groups = [];
+  const colorValues = colors.filter(Boolean);
+  const storageValues = storage.filter(Boolean);
+
+  if (colorValues.length > 0) {
+    groups.push({ name: OPTION_COLOR, values: colorValues });
+  }
+  if (storageValues.length > 0) {
+    groups.push({ name: OPTION_STORAGE, values: storageValues });
+  }
+
+  return groups;
+};
+
 export const parseProductOptions = (options) => {
   if (!options) return [];
 

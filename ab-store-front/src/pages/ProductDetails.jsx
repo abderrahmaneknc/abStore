@@ -7,6 +7,7 @@ import { useLanguage } from '../context/language';
 import { useStore } from '../context/store';
 import { useToast } from '../context/toast';
 import { getProductPrice } from '../data/products';
+import { getOptionGroupLabel } from '../utils/productOptions';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -79,7 +80,7 @@ export default function ProductDetails() {
       toast({
         type: 'danger',
         title: t('selectAllOptions'),
-        message: missingOptions.map((group) => group.name).join(', '),
+        message: missingOptions.map((group) => getOptionGroupLabel(group.name, t)).join(', '),
       });
       return;
     }
@@ -150,7 +151,7 @@ export default function ProductDetails() {
               {optionGroups.map((group) => (
                 <div key={group.name}>
                   <p className="mb-2 text-sm font-semibold text-gray-900">
-                    {group.name}
+                    {getOptionGroupLabel(group.name, t)}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {group.values.map((value) => (

@@ -1,11 +1,48 @@
-import { Globe2, Heart, Menu, Search, ShoppingCart, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { ChevronLeft, ChevronRight, Globe2, Heart, Menu, Search, ShoppingCart, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useCatalog } from '../../context/catalog';
 import { useLanguage } from '../../context/language';
 import { useStore } from '../../context/store';
 import { getProductPrice } from '../../data/products';
 import logo from '../../assets/the_phone_house.jpg';
+
+function useHorizontalScroll(deps = []) {
+  const scrollRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 4);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+    const el = scrollRef.current;
+    if (!el) return undefined;
+
+    el.addEventListener('scroll', updateScrollState, { passive: true });
+    window.addEventListener('resize', updateScrollState);
+
+    return () => {
+      el.removeEventListener('scroll', updateScrollState);
+      window.removeEventListener('resize', updateScrollState);
+    };
+  }, [updateScrollState, ...deps]);
+
+  const scrollByStep = (direction) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: direction * 160, behavior: 'smooth' });
+  };
+
+  return { scrollRef, canScrollLeft, canScrollRight, scrollByStep, updateScrollState };
+}
 
 export default function Navbar() {
   const [query, setQuery] = useState('');
@@ -16,25 +53,34 @@ export default function Navbar() {
   const { cartCount, wishlistCount } = useStore();
   const { language, languages, setLanguage, t } = useLanguage();
 
-  const links = useMemo(() => {
-    const baseLinks = [
+  const baseLinks = useMemo(
+    () => [
       { label: t('home'), to: '/' },
       { label: t('shop'), to: '/catalog' },
       { label: t('about'), to: '/about' },
       { label: t('contact'), to: '/contact' },
-    ];
+    ],
+    [t]
+  );
 
-    const categoryLinks = visibleCategories.map((category) => ({
-      label: category.name,
-      to: `/catalog?category=${encodeURIComponent(category.name)}`,
-    }));
+  const categoryLinks = useMemo(
+    () =>
+      visibleCategories.map((category) => ({
+        label: category.name,
+        to: `/catalog?category=${encodeURIComponent(category.name)}`,
+      })),
+    [visibleCategories]
+  );
 
-    return [
-      ...baseLinks,
-      ...categoryLinks,
-      { label: t('shareExperience'), to: '/#feedback-section', isHash: true },
-    ];
-  }, [t, visibleCategories]);
+  const feedbackLink = useMemo(
+    () => ({ label: t('shareExperience'), to: '/#feedback-section', isHash: true }),
+    [t]
+  );
+
+  const isCategoryScrollable = categoryLinks.length > 3;
+
+  const desktopCategories = useHorizontalScroll([categoryLinks.length]);
+  const mobileCategories = useHorizontalScroll([categoryLinks.length, isOpen]);
 
   const suggestions = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -69,6 +115,26 @@ export default function Navbar() {
     setQuery('');
     setIsOpen(false);
     setIsSearchFocused(false);
+  };
+
+  const scrollToFeedback = () => {
+    setIsOpen(false);
+    if (window.location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        const element = document.getElementById('feedback-section');
+        if (element) {
+          const y = element.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      const element = document.getElementById('feedback-section');
+      if (element) {
+        const y = element.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }
   };
 
   const renderSearchBox = (mobile = false) => (
@@ -145,10 +211,107 @@ export default function Navbar() {
     </div>
   );
 
-  const navScrollClass =
-    visibleCategories.length > 3
-      ? 'md:flex-nowrap md:overflow-x-auto md:scrollbar-hide md:pb-1'
-      : 'md:flex-wrap lg:justify-center';
+  const navLinkClass = (link, mobileChip = false) =>
+    ({ isActive }) =>
+      `${
+        mobileChip
+          ? 'rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium'
+          : 'rounded-lg px-3 py-2 text-sm'
+      } whitespace-nowrap transition hover:bg-white/10 hover:text-gold shrink-0 ${
+        isActive && link.to === '/catalog' ? 'text-gold' : ''
+      }`;
+
+  const renderStandardLink = (link, mobileChip = false) => (
+    <NavLink
+      key={`${link.label}-${link.to}`}
+      to={link.to}
+      onClick={() => {
+        setIsOpen(false);
+        window.scrollTo(0, 0);
+      }}
+      className={navLinkClass(link, mobileChip)}
+    >
+      {link.label}
+    </NavLink>
+  );
+
+  const renderFeedbackButton = (className = '') => (
+    <button
+      key={`${feedbackLink.label}-hash`}
+      type="button"
+      onClick={scrollToFeedback}
+      className={`rounded-lg px-3 py-2 text-sm whitespace-nowrap transition hover:bg-white/10 hover:text-gold text-left shrink-0 ${className}`}
+    >
+      {feedbackLink.label}
+    </button>
+  );
+
+  const renderDesktopCategoryScroll = () => (
+    <div className="relative min-w-0 flex-1">
+      {isCategoryScrollable && desktopCategories.canScrollLeft && (
+        <button
+          type="button"
+          onClick={() => desktopCategories.scrollByStep(-1)}
+          className="absolute left-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-1 text-white transition hover:bg-white/20"
+          aria-label={t('scrollLeft')}
+        >
+          <ChevronLeft size={18} />
+        </button>
+      )}
+
+      {isCategoryScrollable && desktopCategories.canScrollRight && (
+        <button
+          type="button"
+          onClick={() => desktopCategories.scrollByStep(1)}
+          className="absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-1 text-white transition hover:bg-white/20"
+          aria-label={t('scrollRight')}
+        >
+          <ChevronRight size={18} />
+        </button>
+      )}
+
+      {isCategoryScrollable && desktopCategories.canScrollRight && (
+        <div className="pointer-events-none absolute right-0 top-0 z-[1] h-full w-10 bg-gradient-to-l from-gray-900 to-transparent" />
+      )}
+
+      <div
+        ref={desktopCategories.scrollRef}
+        className={`flex items-center gap-2 overflow-x-auto scrollbar-hide ${
+          isCategoryScrollable ? 'px-7' : ''
+        }`}
+      >
+        {categoryLinks.map((link) => renderStandardLink(link))}
+      </div>
+    </div>
+  );
+
+  const renderMobileCategoryScroll = () => (
+    <div className="mt-2">
+      <p className="px-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
+        {t('categoriesTab')}
+      </p>
+
+      <div className="relative mt-2">
+        {isCategoryScrollable && mobileCategories.canScrollRight && (
+          <div className="pointer-events-none absolute right-0 top-0 z-[1] h-full w-8 bg-gradient-to-l from-gray-900 to-transparent" />
+        )}
+
+        <div
+          ref={mobileCategories.scrollRef}
+          className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory"
+        >
+          {categoryLinks.map((link) => renderStandardLink(link, true))}
+        </div>
+
+        {isCategoryScrollable && (
+          <p className="mt-2 flex items-center justify-center gap-1 text-center text-xs text-gray-400">
+            <ChevronRight size={12} className="animate-pulse" />
+            {t('swipeCategories')}
+          </p>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <header className="fixed top-0 w-full z-50 bg-white/95 shadow-sm backdrop-blur">
@@ -238,57 +401,23 @@ export default function Navbar() {
             </select>
           </div>
 
-          <div
-            className={`flex flex-col gap-2 text-sm text-white md:flex-row md:items-center md:gap-2 lg:gap-4 ${navScrollClass}`}
-          >
-            {links.map((link) => {
-              if (link.isHash) {
-                return (
-                  <button
-                    key={`${link.label}-hash`}
-                    onClick={() => {
-                      setIsOpen(false);
-                      if (window.location.pathname !== '/') {
-                        navigate('/');
-                        setTimeout(() => {
-                          const element = document.getElementById('feedback-section');
-                          if (element) {
-                            const y = element.getBoundingClientRect().top + window.scrollY - 80;
-                            window.scrollTo({ top: y, behavior: 'smooth' });
-                          }
-                        }, 100);
-                      } else {
-                        const element = document.getElementById('feedback-section');
-                        if (element) {
-                          const y = element.getBoundingClientRect().top + window.scrollY - 80;
-                          window.scrollTo({ top: y, behavior: 'smooth' });
-                        }
-                      }
-                    }}
-                    className="rounded-lg px-3 py-2 whitespace-nowrap transition hover:bg-white/10 hover:text-gold text-left"
-                  >
-                    {link.label}
-                  </button>
-                );
-              }
-              return (
-                <NavLink
-                  key={`${link.label}-${link.to}`}
-                  to={link.to}
-                  onClick={() => {
-                    setIsOpen(false);
-                    window.scrollTo(0, 0);
-                  }}
-                  className={({ isActive }) =>
-                    `rounded-lg px-3 py-2 whitespace-nowrap transition hover:bg-white/10 hover:text-gold shrink-0 ${
-                      isActive && link.to === '/catalog' ? 'text-gold' : ''
-                    }`
-                  }
-                >
-                  {link.label}
-                </NavLink>
-              );
-            })}
+          {/* Mobile menu: vertical main links + horizontal category chips */}
+          <div className="flex flex-col gap-2 text-white md:hidden">
+            {baseLinks.map((link) => renderStandardLink(link))}
+            {categoryLinks.length > 0 && renderMobileCategoryScroll()}
+            {renderFeedbackButton()}
+          </div>
+
+          {/* Desktop menu: row with scrollable categories when many */}
+          <div className="hidden md:flex md:items-center md:gap-2 lg:gap-4 text-sm text-white">
+            {baseLinks.map((link) => renderStandardLink(link))}
+
+            {categoryLinks.length > 0 &&
+              (isCategoryScrollable
+                ? renderDesktopCategoryScroll()
+                : categoryLinks.map((link) => renderStandardLink(link)))}
+
+            {renderFeedbackButton()}
           </div>
         </div>
       </nav>

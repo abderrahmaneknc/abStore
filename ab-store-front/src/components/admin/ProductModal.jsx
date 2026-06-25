@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useCatalog } from '../../context/catalog';
 import { useLanguage } from '../../context/language';
 import { useToast } from '../../context/toast';
-import { parseProductOptions } from '../../utils/productOptions';
+import { extractColorAndStorage, buildColorStorageOptions } from '../../utils/productOptions';
 import Modal from '../ui/Modal';
 
 const createEmptyProduct = (category) => ({
@@ -18,24 +18,30 @@ const createEmptyProduct = (category) => ({
   isPromo: false,
   discountPercent: 0,
   stock: 10,
-  options: [],
+  colors: [],
+  storage: [],
   frontImageFile: null,
   backImageFile: null,
   galleryImageFiles: [],
   galleryImagesPreview: [],
 });
 
-const normalizeInitialProduct = (product) => ({
-  ...product,
-  frontImageFile: null,
-  backImageFile: null,
-  image: product.image || product.imageUrl || '',
-  image2: product.image2 || '',
-  discountPercent: Number(product.discountPercent ?? product.discount) || 0,
-  options: parseProductOptions(product.options),
-  galleryImageFiles: [],
-  galleryImagesPreview: product.galleryImages || [],
-});
+const normalizeInitialProduct = (product) => {
+  const { colors, storage } = extractColorAndStorage(product.options);
+
+  return {
+    ...product,
+    frontImageFile: null,
+    backImageFile: null,
+    image: product.image || product.imageUrl || '',
+    image2: product.image2 || '',
+    discountPercent: Number(product.discountPercent ?? product.discount) || 0,
+    colors,
+    storage,
+    galleryImageFiles: [],
+    galleryImagesPreview: product.galleryImages || [],
+  };
+};
 
 export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
   const { t } = useLanguage();
@@ -107,32 +113,10 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
     }));
   };
 
-  const addOptionGroup = () => {
+  const updateColorStorage = (field, value) => {
     setFormData((prev) => ({
       ...prev,
-      options: [...(prev.options || []), { name: '', values: [] }],
-    }));
-  };
-
-  const updateOptionGroup = (index, field, value) => {
-    setFormData((prev) => {
-      const options = [...(prev.options || [])];
-      if (field === 'values') {
-        options[index] = {
-          ...options[index],
-          values: value.split(',').map((item) => item.trim()).filter(Boolean),
-        };
-      } else {
-        options[index] = { ...options[index], [field]: value };
-      }
-      return { ...prev, options };
-    });
-  };
-
-  const removeOptionGroup = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      options: (prev.options || []).filter((_, i) => i !== index),
+      [field]: value.split(',').map((item) => item.trim()).filter(Boolean),
     }));
   };
 
@@ -144,6 +128,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
       rating: Number(formData.rating),
       discountPercent: formData.isPromo ? Number(formData.discountPercent) || 0 : 0,
       stock: Number(formData.stock),
+      options: buildColorStorageOptions(formData.colors, formData.storage),
     });
   };
 
@@ -284,43 +269,28 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
             </div>
           </div>
           <div className="md:col-span-2">
-            <div className="flex items-center justify-between gap-3">
-              <label className="block text-sm font-medium text-gray-700">{t('productOptions')}</label>
-              <button
-                type="button"
-                onClick={addOptionGroup}
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:border-gold"
-              >
-                {t('addOptionGroup')}
-              </button>
-            </div>
-            {(formData.options || []).length > 0 && (
-              <div className="mt-3 space-y-3">
-                {(formData.options || []).map((group, index) => (
-                  <div key={index} className="grid gap-3 rounded-lg border border-border p-4 md:grid-cols-[1fr_1fr_auto]">
-                    <input
-                      value={group.name}
-                      onChange={(e) => updateOptionGroup(index, 'name', e.target.value)}
-                      placeholder={t('optionNamePlaceholder')}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gold"
-                    />
-                    <input
-                      value={(group.values || []).join(', ')}
-                      onChange={(e) => updateOptionGroup(index, 'values', e.target.value)}
-                      placeholder={t('optionValuesPlaceholder')}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gold"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeOptionGroup(index)}
-                      className="rounded-lg border border-red-200 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
-                    >
-                      {t('remove')}
-                    </button>
-                  </div>
-                ))}
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('productOptions')}</label>
+            <div className="mt-3 grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-600">{t('color')}</label>
+                <input
+                  value={(formData.colors || []).join(', ')}
+                  onChange={(e) => updateColorStorage('colors', e.target.value)}
+                  placeholder={t('colorPlaceholder')}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gold"
+                />
               </div>
-            )}
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-600">{t('storage')}</label>
+                <input
+                  value={(formData.storage || []).join(', ')}
+                  onChange={(e) => updateColorStorage('storage', e.target.value)}
+                  placeholder={t('storagePlaceholder')}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gold"
+                />
+              </div>
+            </div>
+            <p className="mt-2 text-xs text-gray-500">{t('optionValuesPlaceholder')}</p>
           </div>
           <div className="flex items-center gap-6 md:col-span-2 pt-2 border-t border-border mt-2">
             <label className="flex items-center gap-2 cursor-pointer">
