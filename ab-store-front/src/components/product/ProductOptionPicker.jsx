@@ -13,30 +13,23 @@ export default function ProductOptionPicker({
   const isDark = variant === 'dark';
 
   return (
-    <div className={compact ? 'space-y-2' : 'space-y-4'}>
+    <div className={compact ? 'space-y-2' : 'space-y-3'}>
       {optionGroups.map((group) => (
-        <div
-          key={group.name}
-          className={compact ? 'flex min-w-0 items-center gap-2' : undefined}
-        >
+        <div key={group.name} className="flex min-w-0 items-center gap-2">
           <p
-            className={`font-semibold whitespace-nowrap ${
-              compact ? 'mb-0 text-xs' : 'mb-1.5 text-sm'
+            className={`shrink-0 font-semibold whitespace-nowrap ${
+              compact ? 'text-xs' : 'text-sm'
             } ${isDark ? 'text-gray-200' : 'text-gray-900'}`}
           >
-            {getOptionGroupLabel(group.name, t)}
+            {getOptionGroupLabel(group.name, t)}:
           </p>
-          <div
-            className={`flex gap-1.5 ${
-              compact ? 'min-w-0 flex-1 flex-nowrap overflow-x-auto scrollbar-hide' : 'flex-wrap'
-            }`}
-          >
+          <div className="flex min-w-0 flex-1 flex-nowrap gap-1.5 overflow-x-auto scrollbar-hide">
             {group.values.map((value) => (
               <button
                 key={value}
                 type="button"
                 onClick={() => onSelect(group.name, value)}
-                className={`rounded-lg border font-medium transition ${
+                className={`shrink-0 rounded-lg border font-medium transition ${
                   compact ? 'px-2.5 py-1 text-xs' : 'px-4 py-2 text-sm'
                 } ${
                   selectedOptions[group.name] === value
