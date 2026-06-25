@@ -274,6 +274,9 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
             <div className="space-y-5 rounded-lg border border-border p-4">
               <OptionChipSelector
                 label={t('color')}
+                quickChooseLabel={t('quickChoose')}
+                customPlaceholder={t('colorPlaceholder')}
+                addLabel={t('addCustomValue')}
                 hint={t('colorOptionsHint')}
                 presets={[...new Set([...PRESET_COLORS, ...(formData.colors || [])])]}
                 selected={formData.colors || []}
@@ -281,6 +284,9 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
               />
               <OptionChipSelector
                 label={t('storage')}
+                quickChooseLabel={t('quickChoose')}
+                customPlaceholder={t('storagePlaceholder')}
+                addLabel={t('addCustomValue')}
                 hint={t('storageOptionsHint')}
                 presets={[...new Set([...PRESET_STORAGE, ...(formData.storage || [])])]}
                 selected={formData.storage || []}

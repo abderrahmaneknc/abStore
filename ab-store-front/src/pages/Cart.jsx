@@ -392,11 +392,12 @@
 
                     {(product.options || []).length > 0 && (
                       <div className="mt-3 rounded-lg border border-gray-700 bg-gray-800/60 p-3">
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-200">
                           {t('chooseOptions')}
                         </p>
                         <ProductOptionPicker
                           compact
+                          variant="dark"
                           t={t}
                           optionGroups={product.options}
                           selectedOptions={selectedOptions || {}}

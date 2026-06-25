@@ -5,18 +5,21 @@ export default function ProductOptionPicker({
   selectedOptions = {},
   onSelect,
   compact = false,
+  variant = 'light',
   t,
 }) {
   if (!optionGroups.length) return null;
+
+  const isDark = variant === 'dark';
 
   return (
     <div className={compact ? 'space-y-2' : 'space-y-4'}>
       {optionGroups.map((group) => (
         <div key={group.name}>
           <p
-            className={`mb-1.5 font-semibold text-gray-900 ${
+            className={`mb-1.5 font-semibold ${
               compact ? 'text-xs' : 'text-sm'
-            }`}
+            } ${isDark ? 'text-gray-200' : 'text-gray-900'}`}
           >
             {getOptionGroupLabel(group.name, t)}
           </p>
@@ -31,7 +34,9 @@ export default function ProductOptionPicker({
                 } ${
                   selectedOptions[group.name] === value
                     ? 'border-gold bg-gold text-black'
-                    : 'border-border hover:border-gold'
+                    : isDark
+                      ? 'border-gray-600 text-gray-200 hover:border-gold hover:text-white'
+                      : 'border-border text-gray-700 hover:border-gold'
                 }`}
               >
                 {value}
