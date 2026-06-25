@@ -32,7 +32,7 @@ export default function Footer() {
     [t('contact'), '/contact'],
   ];
   const productLinks = [
-    [t('cameras'), '/catalog?category=Cameras'],
+    [t('phones'), '/catalog?category=Phones'],
     [t('accessories'), '/catalog?category=Accessoires'],
     [t('laptop'), '/catalog?category=Laptop'],
   ];

@@ -16,7 +16,7 @@ const dictionaries = {
     viewAllResults: 'Voir tous les resultats',
     heroTitle: 'The Phone House  - Phones and Accessories',
     heroText:
-      'Decouvrez du materiel professionnel haut de gamme pour capturer chaque moment.',
+      'The world of original and high quality phones and accessories for your daily needs.',
     buy: 'Acheter',
     moreInfo: "Plus d'informations",
     ourProducts: 'Nos Produits',
@@ -77,14 +77,14 @@ const dictionaries = {
       'The Phone House met en avant des telephones, accessoires et laptops choisis pour la creation photo et video.',
     localBase: 'Base en Algerie',
     localText:
-      "L'equipe accompagne les clients depuis Bordj Bou Arreridj avec une approche simple, directe et locale.",
+      "L'equipe accompagne les clients depuis El Eulma avec une approche simple, directe et locale.",
     usefulAdvice: 'Conseil utile',
     usefulAdviceText:
       'Besoin de choisir entre deux modeles ? Le support vous aide a trouver le materiel adapte a votre usage.',
     contactTitle: 'Parlez-nous de votre besoin',
     address: 'Adresse',
     addressText:
-      'Bordj Bou Arreridj, Algerie. Livraison disponible selon la commande.',
+      'El Eulma, Algerie. Livraison disponible selon la commande.',
     support: 'Support',
     supportText:
       'Assistance 7j/7 pour les demandes produit, disponibilites et commandes.',
@@ -336,13 +336,13 @@ const dictionaries = {
       'The Phone House  highlights phones, accessories and laptops chosen for photo and video creation.',
     localBase: 'Based in Algeria',
     localText:
-      'The team supports customers from Bordj Bou Arreridj with a simple, direct and local approach.',
+      'The team supports customers from El Eulma with a simple, direct and local approach.',
     usefulAdvice: 'Useful advice',
     usefulAdviceText:
       'Need to choose between two models? Support helps you find the right gear.',
     contactTitle: 'Tell us what you need',
     address: 'Address',
-    addressText: 'Bordj Bou Arreridj, Algeria. Delivery depends on the order.',
+    addressText: 'El Eulma, Algeria. Delivery depends on the order.',
     support: 'Support',
     supportText: '7-day support for products, availability and orders.',
     quickRequest: 'Quick request',

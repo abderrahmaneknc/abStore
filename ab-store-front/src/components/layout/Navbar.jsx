@@ -21,7 +21,7 @@ export default function Navbar() {
     { label: t('shop'), to: '/catalog' },
     { label: t('about'), to: '/about' },
     { label: t('contact'), to: '/contact' },
-    { label: t('cameras'), to: '/catalog?category=Cameras' },
+    { label: t('phones'), to: '/catalog?category=phones' },
     { label: t('accessories'), to: '/catalog?category=Accessoires' },
     { label: t('laptop'), to: '/catalog?category=Laptop' },
     { label: t('shareExperience'), to: '/#feedback-section', isHash: true },

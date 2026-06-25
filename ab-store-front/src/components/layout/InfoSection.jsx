@@ -10,7 +10,7 @@ const items = [
   {
     icon: MapPin,
     titleKey: 'location',
-    text: 'Bordj Bou Arreridj',
+    text: 'El Eulma',
   },
   {
     icon: Headphones,
