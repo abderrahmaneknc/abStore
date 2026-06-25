@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useCatalog } from '../../context/catalog';
 import { useLanguage } from '../../context/language';
 import { useToast } from '../../context/toast';
-import { extractColorAndStorage, buildColorStorageOptions } from '../../utils/productOptions';
+import { extractColorAndStorage, buildColorStorageOptions, PRESET_COLORS, PRESET_STORAGE } from '../../utils/productOptions';
+import OptionChipSelector from './OptionChipSelector';
 import Modal from '../ui/Modal';
 
 const createEmptyProduct = (category) => ({
@@ -113,10 +114,10 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
     }));
   };
 
-  const updateColorStorage = (field, value) => {
+  const updateColorStorage = (field, values) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: value.split(',').map((item) => item.trim()).filter(Boolean),
+      [field]: values,
     }));
   };
 
@@ -269,28 +270,23 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
             </div>
           </div>
           <div className="md:col-span-2">
-            <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('productOptions')}</label>
-            <div className="mt-3 grid gap-4 md:grid-cols-2">
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-600">{t('color')}</label>
-                <input
-                  value={(formData.colors || []).join(', ')}
-                  onChange={(e) => updateColorStorage('colors', e.target.value)}
-                  placeholder={t('colorPlaceholder')}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gold"
-                />
-              </div>
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-600">{t('storage')}</label>
-                <input
-                  value={(formData.storage || []).join(', ')}
-                  onChange={(e) => updateColorStorage('storage', e.target.value)}
-                  placeholder={t('storagePlaceholder')}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gold"
-                />
-              </div>
+            <label className="mb-3 block text-sm font-medium text-gray-700">{t('productOptions')}</label>
+            <div className="space-y-5 rounded-lg border border-border p-4">
+              <OptionChipSelector
+                label={t('color')}
+                hint={t('colorOptionsHint')}
+                presets={[...new Set([...PRESET_COLORS, ...(formData.colors || [])])]}
+                selected={formData.colors || []}
+                onChange={(values) => updateColorStorage('colors', values)}
+              />
+              <OptionChipSelector
+                label={t('storage')}
+                hint={t('storageOptionsHint')}
+                presets={[...new Set([...PRESET_STORAGE, ...(formData.storage || [])])]}
+                selected={formData.storage || []}
+                onChange={(values) => updateColorStorage('storage', values)}
+              />
             </div>
-            <p className="mt-2 text-xs text-gray-500">{t('optionValuesPlaceholder')}</p>
           </div>
           <div className="flex items-center gap-6 md:col-span-2 pt-2 border-t border-border mt-2">
             <label className="flex items-center gap-2 cursor-pointer">

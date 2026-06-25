@@ -99,7 +99,7 @@ export default function OrdersManager() {
       Adresse: o.fullAddress || o.address || '',
       CodePostal: o.postalCode || '',
       Articles: (o.items || []).map(i => {
-        const options = formatSelectedOptions(i.selectedOptions);
+        const options = formatSelectedOptions(i.selectedOptions, t);
         const label = `${i.name || i.productName || ''} x${i.quantity}${options ? ` (${options})` : ''} (${i.price} DZD)`;
         return label;
       }).join(' | '),
@@ -419,9 +419,9 @@ export default function OrdersManager() {
                       </div>
                       <div>
                         <span className="font-medium">{item.name || item.productName}</span>
-                        {formatSelectedOptions(item.selectedOptions) && (
+                        {formatSelectedOptions(item.selectedOptions, t) && (
                           <p className="text-xs text-muted">
-                            {formatSelectedOptions(item.selectedOptions)}
+                            {formatSelectedOptions(item.selectedOptions, t)}
                           </p>
                         )}
                       </div>

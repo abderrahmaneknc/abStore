@@ -2,12 +2,13 @@ import { Heart, Minus, Plus, ShoppingCart, Star } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ProductGrid from '../components/product/ProductGrid';
+import ProductOptionPicker from '../components/product/ProductOptionPicker';
 import { useCatalog } from '../context/catalog';
 import { useLanguage } from '../context/language';
 import { useStore } from '../context/store';
 import { useToast } from '../context/toast';
 import { getProductPrice } from '../data/products';
-import { getOptionGroupLabel } from '../utils/productOptions';
+import { getOptionGroupLabel, getMissingOptions } from '../utils/productOptions';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -64,9 +65,7 @@ export default function ProductDetails() {
   const hasPromoDiscount =
     product.isPromo && Number(product.discountPercent) > 0;
 
-  const missingOptions = optionGroups.filter(
-    (group) => !selectedOptions[group.name]
-  );
+  const missingOptions = getMissingOptions(optionGroups, selectedOptions);
 
   const handleOptionSelect = (groupName, value) => {
     setSelectedOptions((current) => ({
@@ -147,30 +146,13 @@ export default function ProductDetails() {
           </p>
 
           {optionGroups.length > 0 && (
-            <div className="mt-6 space-y-4">
-              {optionGroups.map((group) => (
-                <div key={group.name}>
-                  <p className="mb-2 text-sm font-semibold text-gray-900">
-                    {getOptionGroupLabel(group.name, t)}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {group.values.map((value) => (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => handleOptionSelect(group.name, value)}
-                        className={`rounded-lg border px-4 py-2 text-sm font-medium transition ${
-                          selectedOptions[group.name] === value
-                            ? 'border-gold bg-gold text-black'
-                            : 'border-border hover:border-gold'
-                        }`}
-                      >
-                        {value}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
+            <div className="mt-6">
+              <ProductOptionPicker
+                t={t}
+                optionGroups={optionGroups}
+                selectedOptions={selectedOptions}
+                onSelect={handleOptionSelect}
+              />
             </div>
           )}
 

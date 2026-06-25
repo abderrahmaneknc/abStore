@@ -1,12 +1,13 @@
   import { Minus, Plus, ShoppingBag, Trash2, CheckCircle } from 'lucide-react';
   import { useState } from 'react';
   import { Link, useNavigate } from 'react-router-dom';
+  import ProductOptionPicker from '../components/product/ProductOptionPicker';
   import { useLanguage } from '../context/language';
   import { useStore } from '../context/store';
   import { useToast } from '../context/toast';
   import { getProductPrice } from '../data/products';
   import { wilayas } from '../data/wilayas';
-  import { formatSelectedOptions } from '../utils/productOptions';
+  import { formatSelectedOptions, getMissingOptions } from '../utils/productOptions';
 
   export default function Cart() {
     const {
@@ -15,6 +16,7 @@
       clearCart,
       removeFromCart,
       updateCartQuantity,
+      updateCartOptions,
       createOrder,
     } = useStore();
     const { t } = useLanguage();
@@ -95,6 +97,20 @@
     const handleSubmit = async (e) => {
       e.preventDefault();
 
+      const itemsMissingOptions = cartItems.filter((item) => {
+        const optionGroups = item.product?.options || [];
+        return getMissingOptions(optionGroups, item.selectedOptions).length > 0;
+      });
+
+      if (itemsMissingOptions.length > 0) {
+        toast({
+          type: 'danger',
+          title: t('selectAllOptions'),
+          message: t('selectOptionsInCart'),
+        });
+        return;
+      }
+
       if (!validateForm()) {
         return;
       }
@@ -140,6 +156,13 @@
       if (name === 'wilaya') {
         setFormData((prev) => ({ ...prev, baladiya: '' }));
       }
+    };
+
+    const handleCartOptionSelect = (cartItem, groupName, value) => {
+      updateCartOptions(cartItem.key, {
+        ...cartItem.selectedOptions,
+        [groupName]: value,
+      });
     };
 
     const selectedWilaya = wilayas.find(w => w.name === formData.wilaya);
@@ -344,26 +367,45 @@
               <h2 className="text-2xl font-bold">{t('summary')}</h2>
               
               {/* Cart Items List Mini */}
-              <div className="mt-6 max-h-[300px] space-y-4 overflow-y-auto pr-2 scrollbar-hide">
+              <div className="mt-6 max-h-[520px] space-y-4 overflow-y-auto pr-2 scrollbar-hide">
                 {cartItems.map(({ key, product, quantity, selectedOptions }) => (
-                  <div key={key} className="flex gap-4 border-b border-gray-800 pb-4">
-                    <img src={product.image} alt={product.name} className="h-16 w-16 rounded-md object-cover" />
-                    <div className="flex-1">
-                      <h3 className="line-clamp-1 text-sm font-semibold">{product.name}</h3>
-                      {formatSelectedOptions(selectedOptions) && (
-                        <p className="mt-0.5 text-xs text-gray-400">
-                          {formatSelectedOptions(selectedOptions)}
-                        </p>
-                      )}
-                      <div className="mt-1 flex items-center justify-between">
-                        <span className="text-gold font-medium">{Math.round(getProductPrice(product)).toLocaleString()} DZD</span>
-                        <div className="flex items-center rounded border border-gray-700 bg-gray-800">
-                          <button type="button" onClick={() => quantity === 1 ? handleRemoveFromCart({ key, product }) : updateCartQuantity(key, quantity - 1)} className="px-2 py-1 text-gray-400 hover:text-white"><Minus size={12} /></button>
-                          <span className="px-2 text-xs font-medium">{quantity}</span>
-                          <button type="button" onClick={() => updateCartQuantity(key, quantity + 1)} className="px-2 py-1 text-gray-400 hover:text-white"><Plus size={12} /></button>
+                  <div key={key} className="border-b border-gray-800 pb-4">
+                    <div className="flex gap-4">
+                      <img src={product.image} alt={product.name} className="h-16 w-16 rounded-md object-cover" />
+                      <div className="flex-1">
+                        <h3 className="line-clamp-1 text-sm font-semibold">{product.name}</h3>
+                        {formatSelectedOptions(selectedOptions, t) && (
+                          <p className="mt-0.5 text-xs text-gray-400">
+                            {formatSelectedOptions(selectedOptions, t)}
+                          </p>
+                        )}
+                        <div className="mt-1 flex items-center justify-between">
+                          <span className="text-gold font-medium">{Math.round(getProductPrice(product)).toLocaleString()} DZD</span>
+                          <div className="flex items-center rounded border border-gray-700 bg-gray-800">
+                            <button type="button" onClick={() => quantity === 1 ? handleRemoveFromCart({ key, product }) : updateCartQuantity(key, quantity - 1)} className="px-2 py-1 text-gray-400 hover:text-white"><Minus size={12} /></button>
+                            <span className="px-2 text-xs font-medium">{quantity}</span>
+                            <button type="button" onClick={() => updateCartQuantity(key, quantity + 1)} className="px-2 py-1 text-gray-400 hover:text-white"><Plus size={12} /></button>
+                          </div>
                         </div>
                       </div>
                     </div>
+
+                    {(product.options || []).length > 0 && (
+                      <div className="mt-3 rounded-lg border border-gray-700 bg-gray-800/60 p-3">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                          {t('chooseOptions')}
+                        </p>
+                        <ProductOptionPicker
+                          compact
+                          t={t}
+                          optionGroups={product.options}
+                          selectedOptions={selectedOptions || {}}
+                          onSelect={(groupName, value) =>
+                            handleCartOptionSelect({ key, selectedOptions }, groupName, value)
+                          }
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

@@ -30,6 +30,21 @@ export const extractColorAndStorage = (options) => {
 export const OPTION_COLOR = 'color';
 export const OPTION_STORAGE = 'storage';
 
+export const PRESET_COLORS = [
+  'Noir',
+  'Blanc',
+  'Or',
+  'Argent',
+  'Bleu',
+  'Rouge',
+  'Vert',
+  'Violet',
+  'Rose',
+  'Gris',
+];
+
+export const PRESET_STORAGE = ['64GB', '128GB', '256GB', '512GB', '1TB'];
+
 export const buildColorStorageOptions = (colors = [], storage = []) => {
   const groups = [];
   const colorValues = colors.filter(Boolean);
@@ -91,7 +106,7 @@ export const serializeProductOptions = (optionGroups) => {
 export const makeCartKey = (productId, selectedOptions = {}) =>
   `${productId}::${JSON.stringify(selectedOptions || {})}`;
 
-export const formatSelectedOptions = (selectedOptions) => {
+export const formatSelectedOptions = (selectedOptions, t) => {
   if (!selectedOptions) return '';
 
   let parsed = selectedOptions;
@@ -107,9 +122,14 @@ export const formatSelectedOptions = (selectedOptions) => {
   if (typeof parsed !== 'object') return '';
 
   return Object.entries(parsed)
-    .map(([key, value]) => `${key}: ${value}`)
+    .map(([key, value]) =>
+      `${t ? getOptionGroupLabel(key, t) : key}: ${value}`
+    )
     .join(' · ');
 };
+
+export const getMissingOptions = (optionGroups = [], selectedOptions = {}) =>
+  optionGroups.filter((group) => !selectedOptions[group.name]);
 
 export const parseSelectedOptions = (selectedOptions) => {
   if (!selectedOptions) return {};

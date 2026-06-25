@@ -7,9 +7,6 @@ import { useLanguage } from '../../context/language';
 const fallbackImage =
   'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=900&auto=format&fit=crop&q=80';
 
-const CARD_CLASS =
-  'flex h-[220px] w-[150px] shrink-0 snap-start flex-col overflow-hidden rounded-xl bg-white shadow-md transition duration-300 group hover:shadow-xl sm:h-[240px] sm:w-[180px] md:h-[260px] md:w-[220px]';
-
 export default function Categories() {
   const { t } = useLanguage();
   const { visibleCategories } = useCatalog();
@@ -43,20 +40,22 @@ export default function Categories() {
     };
   }, [visibleCategories.length, updateScrollState]);
 
-  const scrollByCard = (direction) => {
+  const scrollByPage = (direction) => {
     const el = scrollRef.current;
     if (!el) return;
-    const cardWidth = el.querySelector('a')?.offsetWidth || 180;
-    el.scrollBy({ left: direction * (cardWidth + 12), behavior: 'smooth' });
+
+    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+    const scrollAmount = isDesktop ? el.clientWidth : (el.querySelector('a')?.offsetWidth || 150) + 12;
+    el.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
   };
 
   const renderCard = (cat) => (
     <Link
       to={`/catalog?category=${encodeURIComponent(cat.name)}`}
       key={cat.id}
-      className={CARD_CLASS}
+      className="group flex h-[220px] w-[150px] shrink-0 snap-start flex-col overflow-hidden rounded-xl bg-white shadow-md transition duration-300 hover:shadow-xl sm:h-[240px] sm:w-[180px] md:h-[320px] md:w-[calc(33.333%-0.67rem)] md:max-w-none md:min-w-0"
     >
-      <div className="h-[110px] shrink-0 overflow-hidden sm:h-[120px] md:h-[140px]">
+      <div className="h-[110px] shrink-0 overflow-hidden sm:h-[120px] md:h-[200px]">
         <img
           src={cat.image || fallbackImage}
           alt={cat.name}
@@ -64,12 +63,12 @@ export default function Categories() {
         />
       </div>
 
-      <div className="flex flex-1 flex-col items-center justify-between p-3">
-        <h3 className="line-clamp-2 text-center text-sm font-bold text-gray-800 sm:text-base">
+      <div className="flex flex-1 flex-col items-center justify-between p-3 md:p-5">
+        <h3 className="line-clamp-2 text-center text-sm font-bold text-gray-800 md:text-lg">
           {cat.name}
         </h3>
 
-        <span className="rounded-lg bg-yellow-500 px-4 py-1.5 text-xs font-semibold text-white transition group-hover:bg-yellow-600 sm:text-sm">
+        <span className="rounded-lg bg-yellow-500 px-4 py-1.5 text-xs font-semibold text-white transition group-hover:bg-yellow-600 md:px-6 md:py-2 md:text-sm">
           {t('buy')}
         </span>
       </div>
@@ -95,7 +94,7 @@ export default function Categories() {
           {isScrollable && canScrollLeft && (
             <button
               type="button"
-              onClick={() => scrollByCard(-1)}
+              onClick={() => scrollByPage(-1)}
               className="absolute left-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/90 p-1.5 text-gray-800 shadow-lg transition hover:bg-white sm:p-2"
               aria-label={t('scrollLeft')}
             >
@@ -107,7 +106,7 @@ export default function Categories() {
           {isScrollable && canScrollRight && (
             <button
               type="button"
-              onClick={() => scrollByCard(1)}
+              onClick={() => scrollByPage(1)}
               className="absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/90 p-1.5 text-gray-800 shadow-lg transition hover:bg-white sm:p-2"
               aria-label={t('scrollRight')}
             >
@@ -131,8 +130,9 @@ export default function Categories() {
 
           {isScrollable && (
             <p className="mt-3 flex items-center justify-center gap-1 text-center text-xs text-gray-400 sm:text-sm">
-              <ChevronRight size={14} className="animate-pulse" />
-              {t('swipeCategories')}
+              <ChevronRight size={14} className="animate-pulse md:hidden" />
+              <span className="md:hidden">{t('swipeCategories')}</span>
+              <span className="hidden md:inline">{t('scrollCategoriesDesktop')}</span>
             </p>
           )}
         </div>
