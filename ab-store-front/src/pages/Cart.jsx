@@ -1,5 +1,5 @@
   import { Minus, Plus, ShoppingBag, Trash2, CheckCircle } from 'lucide-react';
-  import { useState } from 'react';
+  import { useEffect, useState } from 'react';
   import { Link, useNavigate } from 'react-router-dom';
   import ProductOptionPicker from '../components/product/ProductOptionPicker';
   import { useLanguage } from '../context/language';
@@ -37,6 +37,12 @@
 
     const [errors, setErrors] = useState({});
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+    useEffect(() => {
+      if (showSuccessModal) {
+        window.scrollTo(0, 0);
+      }
+    }, [showSuccessModal]);
 
     const handleClearCart = async () => {
       const confirmed = await confirm({
