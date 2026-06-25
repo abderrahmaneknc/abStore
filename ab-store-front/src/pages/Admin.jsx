@@ -229,7 +229,7 @@ export default function Admin() {
           >
             <div className="mb-8">
               <p className="text-sm font-semibold uppercase tracking-wide text-gold">
-                AB Store
+                The Phone House
               </p>
               <h1 className="mt-2 text-3xl font-bold">{t('adminLogin')}</h1>
               <p className="mt-2 text-sm text-muted">{t('adminLoginText')}</p>
@@ -268,7 +268,7 @@ export default function Admin() {
           <div className="flex items-center justify-between gap-3 lg:block">
             <div>
               <p className="text-sm font-semibold uppercase tracking-wide text-gold">
-                AB Store
+                The Phone House 
               </p>
               <h1 className="mt-1 text-2xl font-bold">{t('adminEssential')}</h1>
             </div>

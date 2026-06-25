@@ -41,7 +41,7 @@ export default function Footer() {
     <footer className="bg-gray-900 border-t border-gray-800 py-12 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 gap-10 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4">
         <div>
-          <h2 className="text-2xl font-bold text-white mb-4">AB Store</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">The Phone House </h2>
           <p className="text-sm leading-relaxed text-gray-400">
             {t('footerText')}
           </p>

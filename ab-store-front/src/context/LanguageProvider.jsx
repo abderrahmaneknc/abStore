@@ -14,7 +14,7 @@ const dictionaries = {
     searchPlaceholder: 'Rechercher...',
     noSearchResults: 'Aucun resultat',
     viewAllResults: 'Voir tous les resultats',
-    heroTitle: 'AB Store - Photographie Premium',
+    heroTitle: 'The Phone House  - Phones and Accessories',
     heroText:
       'Decouvrez du materiel professionnel haut de gamme pour capturer chaque moment.',
     buy: 'Acheter',
@@ -74,7 +74,7 @@ const dictionaries = {
     aboutTitle: 'Un store pour createurs exigeants',
     selectionPremium: 'Selection premium',
     selectionText:
-      'AB Store met en avant des cameras, drones, laptops et accessoires choisis pour la creation photo et video.',
+      'The Phone House met en avant des telephones, accessoires et laptops choisis pour la creation photo et video.',
     localBase: 'Base en Algerie',
     localText:
       "L'equipe accompagne les clients depuis Bordj Bou Arreridj avec une approche simple, directe et locale.",
@@ -103,7 +103,7 @@ const dictionaries = {
     navigation: 'Navigation',
     quickLinks: 'Liens rapides',
     products: 'Produits',
-    rights: '2026 AB Store. Tous droits reserves.',
+    rights: '2026 The Phone House. Tous droits reserves.',
     deliveryTitle: 'Livraison',
     deliveryText: 'Livraison rapide partout en Algerie',
     location: 'Localisation',
@@ -274,7 +274,7 @@ const dictionaries = {
     searchPlaceholder: 'Search...',
     noSearchResults: 'No results',
     viewAllResults: 'View all results',
-    heroTitle: 'AB Store - Premium Photography',
+    heroTitle: 'The Phone House  - Phones and Accessories',
     heroText:
       'Discover high-end professional gear to capture every important moment.',
     buy: 'Shop now',
@@ -333,7 +333,7 @@ const dictionaries = {
     aboutTitle: 'A store for demanding creators',
     selectionPremium: 'Premium selection',
     selectionText:
-      'AB Store highlights cameras, drones, laptops and accessories chosen for photo and video creation.',
+      'The Phone House  highlights phones, accessories and laptops chosen for photo and video creation.',
     localBase: 'Based in Algeria',
     localText:
       'The team supports customers from Bordj Bou Arreridj with a simple, direct and local approach.',
@@ -360,7 +360,7 @@ const dictionaries = {
     navigation: 'Navigation',
     quickLinks: 'Quick links',
     products: 'Products',
-    rights: '2026 AB Store. All rights reserved.',
+    rights: '2026 The Phone house. All rights reserved.',
     deliveryTitle: 'Delivery',
     deliveryText: 'Fast delivery across Algeria',
     location: 'Location',
@@ -531,7 +531,7 @@ const dictionaries = {
     searchPlaceholder: 'ابحث...',
     noSearchResults: 'لا توجد نتائج',
     viewAllResults: 'عرض كل النتائج',
-    heroTitle: 'AB Store - تصوير احترافي',
+    heroTitle: 'The Phone House - الهواتف والإكسسوارات',
     heroText: 'اكتشف معدات احترافية عالية الجودة لالتقاط كل لحظة مهمة.',
     buy: 'تسوق الآن',
     moreInfo: 'معلومات أكثر',
@@ -589,7 +589,7 @@ const dictionaries = {
     aboutTitle: 'متجر لصناع المحتوى المحترفين',
     selectionPremium: 'اختيار ممتاز',
     selectionText:
-      'يعرض AB Store كاميرات وطائرات درون وحواسيب وإكسسوارات مختارة للتصوير والفيديو.',
+      'The Phone House يسلط الضوء على الهواتف والإكسسوارات والحواسيب المختارة لإنشاء الصور والفيديو.',
     localBase: 'مقرنا في الجزائر',
     localText: 'نرافق العملاء من برج بوعريريج بطريقة بسيطة ومحلية.',
     usefulAdvice: 'نصيحة مفيدة',
@@ -614,7 +614,7 @@ const dictionaries = {
     navigation: 'التنقل',
     quickLinks: 'روابط سريعة',
     products: 'المنتجات',
-    rights: '2026 AB Store. كل الحقوق محفوظة.',
+    rights: '2026 The Phone house. كل الحقوق محفوظة.',
     deliveryTitle: 'التوصيل',
     deliveryText: 'توصيل سريع في كل الجزائر',
     location: 'الموقع',

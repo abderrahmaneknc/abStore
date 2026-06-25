@@ -5,7 +5,7 @@ import { useCatalog } from '../../context/catalog';
 import { useLanguage } from '../../context/language';
 import { useStore } from '../../context/store';
 import { getProductPrice } from '../../data/products';
-import logo from '../../assets/abstore_logo.png';
+import logo from '../../assets/the_phone_house.jpg';
 
 export default function Navbar() {
   const [query, setQuery] = useState('');
@@ -140,8 +140,8 @@ export default function Navbar() {
     <header className="fixed top-0 w-full z-50 bg-white/95 shadow-sm backdrop-blur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2">
-          <img src={logo} alt="AB Store Logo" className="h-8 w-auto rounded" />
-          <span className="font-semibold whitespace-nowrap">AB Store</span>
+          <img src={logo} alt="A Logo" className="h-8 w-auto rounded" />
+          <span className="font-semibold whitespace-nowrap">The Phone House </span>
         </Link>
 
         <div className="hidden w-full max-w-xl lg:block">
