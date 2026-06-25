@@ -14,6 +14,9 @@ public class OrderItem {
     
     @Column(nullable = false)
     private Double price;
+
+    @Column(columnDefinition = "TEXT")
+    private String selectedOptions;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")

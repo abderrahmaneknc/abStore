@@ -52,6 +52,7 @@ public class OrderServiceImpl implements OrderService {
                     itemDto.setProductId(item.getProduct().getId());
                     itemDto.setProductName(item.getProduct().getName());
                 }
+                itemDto.setSelectedOptions(item.getSelectedOptions());
                 return itemDto;
             }).collect(Collectors.toList()));
         }
@@ -92,6 +93,7 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setOrder(order);
             orderItem.setProduct(product);
             orderItem.setQuantity(itemDto.getQuantity());
+            orderItem.setSelectedOptions(itemDto.getSelectedOptions());
             orderItem.setPrice(product.getPrice() * itemDto.getQuantity());
 
             totalPrice += orderItem.getPrice();

@@ -7,8 +7,8 @@ const storageKey = 'ab-store-feedbacks';
 const defaultFeedbacks = [
   {
     id: 1,
-    name: 'Client AB',
-    message: 'Service rapide et bon conseil pour choisir une camera.',
+    name: 'Client satisfait',
+    message: 'Service rapide et bon conseil pour choisir mon telephone.',
     rating: 5,
     visible: true,
     createdAt: '2026-06-20',

@@ -17,4 +17,5 @@ public class ProductDTO {
     private Double rating;
     private CategoryDTO category;
     private List<ProductImageDTO> images;
+    private String options;
 }

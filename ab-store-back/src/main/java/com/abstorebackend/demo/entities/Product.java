@@ -34,6 +34,9 @@ public class Product {
     
     @Builder.Default
     private Double rating = 0.0;
+
+    @Column(columnDefinition = "TEXT")
+    private String options;
     
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

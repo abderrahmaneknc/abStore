@@ -13,7 +13,7 @@ export default function ProductDetails() {
   const { products } = useCatalog();
   const { t } = useLanguage();
   const product = products.find((item) => item.id === Number(id));
-  
+
   const allImages = useMemo(() => {
     if (!product) return [];
     const images = [];
@@ -27,8 +27,11 @@ export default function ProductDetails() {
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [selectedOptions, setSelectedOptions] = useState({});
   const { addToCart, toggleWishlist, wishlist } = useStore();
   const { toast } = useToast();
+
+  const optionGroups = product?.options || [];
 
   const relatedProducts = useMemo(() => {
     if (!product) return [];
@@ -60,8 +63,28 @@ export default function ProductDetails() {
   const hasPromoDiscount =
     product.isPromo && Number(product.discountPercent) > 0;
 
+  const missingOptions = optionGroups.filter(
+    (group) => !selectedOptions[group.name]
+  );
+
+  const handleOptionSelect = (groupName, value) => {
+    setSelectedOptions((current) => ({
+      ...current,
+      [groupName]: value,
+    }));
+  };
+
   const handleAddToCart = () => {
-    addToCart(product.id, quantity);
+    if (missingOptions.length > 0) {
+      toast({
+        type: 'danger',
+        title: t('selectAllOptions'),
+        message: missingOptions.map((group) => group.name).join(', '),
+      });
+      return;
+    }
+
+    addToCart(product.id, quantity, selectedOptions);
     toast({
       type: 'success',
       title: t('addedToCart'),
@@ -122,6 +145,34 @@ export default function ProductDetails() {
             {product.description}
           </p>
 
+          {optionGroups.length > 0 && (
+            <div className="mt-6 space-y-4">
+              {optionGroups.map((group) => (
+                <div key={group.name}>
+                  <p className="mb-2 text-sm font-semibold text-gray-900">
+                    {group.name}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {group.values.map((value) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => handleOptionSelect(group.name, value)}
+                        className={`rounded-lg border px-4 py-2 text-sm font-medium transition ${
+                          selectedOptions[group.name] === value
+                            ? 'border-gold bg-gold text-black'
+                            : 'border-border hover:border-gold'
+                        }`}
+                      >
+                        {value}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="mt-7 flex flex-wrap items-baseline gap-x-3 gap-y-1 sm:mt-8">
             {hasPromoDiscount && (
               <span className="text-base text-gray-400 line-through sm:text-lg">
@@ -141,7 +192,7 @@ export default function ProductDetails() {
                   setQuantity((current) => Math.max(1, current - 1))
                 }
                 className="flex h-full w-12 items-center justify-center"
-                aria-label="Diminuer la quantite"
+                aria-label={t('decreaseQuantity')}
               >
                 <Minus size={18} />
               </button>
@@ -152,7 +203,7 @@ export default function ProductDetails() {
                 type="button"
                 onClick={() => setQuantity((current) => current + 1)}
                 className="flex h-full w-12 items-center justify-center"
-                aria-label="Augmenter la quantite"
+                aria-label={t('increaseQuantity')}
               >
                 <Plus size={18} />
               </button>

@@ -5,6 +5,7 @@ import ProductGrid from '../components/product/ProductGrid';
 import { useCatalog } from '../context/catalog';
 import { useLanguage } from '../context/language';
 import { productApi, categoryApi } from '../services/api';
+import { parseProductOptions } from '../utils/productOptions';
 
 const normalizeBackendProduct = (product) => {
   const frontImage = product.images?.find((image) => image.type === 'FRONT')?.url;
@@ -27,6 +28,7 @@ const normalizeBackendProduct = (product) => {
     stock: Number(product.stockQty) || 0,
     quantity: Number(product.stockQty) || 0,
     discountPercent: Number(product.discountPercent) || 0,
+    options: parseProductOptions(product.options),
   };
 };
 

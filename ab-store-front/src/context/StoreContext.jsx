@@ -3,6 +3,7 @@ import { getProductPrice } from '../data/products';
 import { useCatalog } from './catalog';
 import { StoreContext } from './store';
 import { orderApi } from '../services/api';
+import { makeCartKey, parseSelectedOptions } from '../utils/productOptions';
 
 const readStorage = (key, fallback) => {
   try {
@@ -21,6 +22,25 @@ const normalizeWishlist = (items) => {
   return items
     .map((id) => Number(id))
     .filter((id) => !Number.isNaN(id));
+};
+
+const normalizeCart = (items) => {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+
+  return items.map((item) => {
+    const selectedOptions = parseSelectedOptions(item.selectedOptions);
+    const id = Number(item.id);
+    const key = item.key || makeCartKey(id, selectedOptions);
+
+    return {
+      key,
+      id,
+      quantity: Number(item.quantity) || 1,
+      selectedOptions,
+    };
+  });
 };
 
 const normalizeOrders = (items) => {
@@ -44,6 +64,8 @@ const normalizeOrders = (items) => {
             quantity: Number(item.quantity) || 0,
             price: Number(item.price) || 0,
             name: item.name || item.productName || '',
+            selectedOptions: item.selectedOptions || null,
+            selectedOptions: item.selectedOptions || null,
           }))
         : [],
       firstName: order.firstName || '',
@@ -75,7 +97,7 @@ export function StoreProvider({ children }) {
   const [wishlist, setWishlist] = useState(() =>
     normalizeWishlist(readStorage('ab-store-wishlist', []))
   );
-  const [cart, setCart] = useState(() => readStorage('ab-store-cart', []));
+  const [cart, setCart] = useState(() => normalizeCart(readStorage('ab-store-cart', [])));
   const [orders, setOrders] = useState(() =>
     normalizeOrders(readStorage('ab-store-orders', []))
   );
@@ -113,33 +135,39 @@ export function StoreProvider({ children }) {
     );
   }, []);
 
-  const addToCart = useCallback((id, quantity = 1) => {
+  const addToCart = useCallback((id, quantity = 1, selectedOptions = {}) => {
+    const normalizedOptions = parseSelectedOptions(selectedOptions);
+    const key = makeCartKey(id, normalizedOptions);
+
     setCart((current) => {
-      const existing = current.find((item) => item.id === id);
+      const existing = current.find((item) => item.key === key);
 
       if (!existing) {
-        return [...current, { id, quantity }];
+        return [
+          ...current,
+          { key, id, quantity, selectedOptions: normalizedOptions },
+        ];
       }
 
       return current.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + quantity } : item
+        item.key === key ? { ...item, quantity: item.quantity + quantity } : item
       );
     });
   }, []);
 
-  const updateCartQuantity = useCallback((id, quantity) => {
+  const updateCartQuantity = useCallback((key, quantity) => {
     if (quantity < 1) {
-      setCart((current) => current.filter((item) => item.id !== id));
+      setCart((current) => current.filter((item) => item.key !== key));
       return;
     }
 
     setCart((current) =>
-      current.map((item) => (item.id === id ? { ...item, quantity } : item))
+      current.map((item) => (item.key === key ? { ...item, quantity } : item))
     );
   }, []);
 
-  const removeFromCart = useCallback((id) => {
-    setCart((current) => current.filter((item) => item.id !== id));
+  const removeFromCart = useCallback((key) => {
+    setCart((current) => current.filter((item) => item.key !== key));
   }, []);
 
   const clearCart = useCallback(() => setCart([]), []);
@@ -150,6 +178,12 @@ export function StoreProvider({ children }) {
         ...order,
         fullAddress: order.address || order.fullAddress || '',
         additionalNotes: order.notes || order.additionalNotes || '',
+        items: order.items.map((item) => ({
+          ...item,
+          selectedOptions: item.selectedOptions
+            ? JSON.stringify(item.selectedOptions)
+            : null,
+        })),
       });
       setOrders((current) => [normalizeOrders([apiOrder])[0], ...current]);
       return apiOrder;

@@ -18,5 +18,13 @@ public class SchemaFixRunner implements CommandLineRunner {
         } catch (Exception e) {
             System.err.println("Failed to drop constraint: " + e.getMessage());
         }
+
+        try {
+            jdbcTemplate.execute("ALTER TABLE products ADD COLUMN IF NOT EXISTS options TEXT");
+            jdbcTemplate.execute("ALTER TABLE order_items ADD COLUMN IF NOT EXISTS selected_options TEXT");
+            System.out.println("Schema columns for product options verified.");
+        } catch (Exception e) {
+            System.err.println("Failed to add options columns: " + e.getMessage());
+        }
     }
 }

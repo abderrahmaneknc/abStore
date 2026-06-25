@@ -2,33 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import defaultProducts from '../data/products';
 import { categoryApi, productApi } from '../services/api';
 import { CatalogContext } from './catalog';
+import { parseProductOptions, serializeProductOptions } from '../utils/productOptions';
 
 const storageKey = 'ab-store-products';
 const categoryStorageKey = 'ab-store-categories';
 
-const baseCategories = [
-  {
-    id: 'cameras',
-    name: 'Cameras',
-    image:
-      'https://images.unsplash.com/photo-1616088886430-ccd86fef0713?w=900&auto=format&fit=crop&q=80',
-    visible: true,
-  },
-  {
-    id: 'accessoires',
-    name: 'Accessoires',
-    image:
-      'https://plus.unsplash.com/premium_photo-1723662135626-50b0c5547e1c?w=900&auto=format&fit=crop&q=80',
-    visible: true,
-  },
-  {
-    id: 'laptop',
-    name: 'Laptop',
-    image:
-      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=900&auto=format&fit=crop&q=80',
-    visible: true,
-  },
-];
+const baseCategories = [];
 
 const makeCategoryId = (name) =>
   name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') ||
@@ -90,6 +69,7 @@ const normalizeBackendProduct = (product) => {
     stock: Number(product.stockQty) || 0,
     quantity: Number(product.stockQty) || 0,
     discountPercent: Number(product.discountPercent) || 0,
+    options: parseProductOptions(product.options),
   });
 };
 
@@ -246,6 +226,7 @@ export function CatalogProvider({ children }) {
           : 0,
         rating: Number(product.rating) || 0,
         category: category ? { id: category.id } : null,
+        options: serializeProductOptions(product.options),
       };
 
       const formData = new FormData();

@@ -6,6 +6,7 @@
   import { useToast } from '../context/toast';
   import { getProductPrice } from '../data/products';
   import { wilayas } from '../data/wilayas';
+  import { formatSelectedOptions } from '../utils/productOptions';
 
   export default function Cart() {
     const {
@@ -53,21 +54,21 @@
       });
     };
 
-    const handleRemoveFromCart = async (product) => {
+    const handleRemoveFromCart = async (cartItem) => {
       const confirmed = await confirm({
         title: t('confirmRemoveTitle'),
-        message: product.name,
+        message: cartItem.product.name,
         confirmLabel: t('remove'),
         cancelLabel: t('cancel'),
       });
 
       if (!confirmed) return;
 
-      removeFromCart(product.id);
+      removeFromCart(cartItem.key);
       toast({
         type: 'info',
         title: t('removedProduct'),
-        message: product.name,
+        message: cartItem.product.name,
       });
     };
 
@@ -115,6 +116,7 @@
           items: cartItems.map((item) => ({
             productId: item.product.id,
             quantity: item.quantity,
+            selectedOptions: item.selectedOptions,
           })),
         });
 
@@ -159,7 +161,7 @@
             onClick={() => navigate('/')}
             className="mt-8 inline-flex rounded-lg bg-gold px-8 py-3.5 font-semibold text-black transition hover:bg-yellow-600 animate-in slide-in-from-bottom-8 duration-700 delay-150"
           >
-            {t('backToHome')}
+            {t('backHome')}
           </button>
         </main>
       );
@@ -343,17 +345,22 @@
               
               {/* Cart Items List Mini */}
               <div className="mt-6 max-h-[300px] space-y-4 overflow-y-auto pr-2 scrollbar-hide">
-                {cartItems.map(({ product, quantity }) => (
-                  <div key={product.id} className="flex gap-4 border-b border-gray-800 pb-4">
+                {cartItems.map(({ key, product, quantity, selectedOptions }) => (
+                  <div key={key} className="flex gap-4 border-b border-gray-800 pb-4">
                     <img src={product.image} alt={product.name} className="h-16 w-16 rounded-md object-cover" />
                     <div className="flex-1">
                       <h3 className="line-clamp-1 text-sm font-semibold">{product.name}</h3>
+                      {formatSelectedOptions(selectedOptions) && (
+                        <p className="mt-0.5 text-xs text-gray-400">
+                          {formatSelectedOptions(selectedOptions)}
+                        </p>
+                      )}
                       <div className="mt-1 flex items-center justify-between">
                         <span className="text-gold font-medium">{Math.round(getProductPrice(product)).toLocaleString()} DZD</span>
                         <div className="flex items-center rounded border border-gray-700 bg-gray-800">
-                          <button type="button" onClick={() => quantity === 1 ? handleRemoveFromCart(product) : updateCartQuantity(product.id, quantity - 1)} className="px-2 py-1 text-gray-400 hover:text-white"><Minus size={12} /></button>
+                          <button type="button" onClick={() => quantity === 1 ? handleRemoveFromCart({ key, product }) : updateCartQuantity(key, quantity - 1)} className="px-2 py-1 text-gray-400 hover:text-white"><Minus size={12} /></button>
                           <span className="px-2 text-xs font-medium">{quantity}</span>
-                          <button type="button" onClick={() => updateCartQuantity(product.id, quantity + 1)} className="px-2 py-1 text-gray-400 hover:text-white"><Plus size={12} /></button>
+                          <button type="button" onClick={() => updateCartQuantity(key, quantity + 1)} className="px-2 py-1 text-gray-400 hover:text-white"><Plus size={12} /></button>
                         </div>
                       </div>
                     </div>

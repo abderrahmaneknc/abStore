@@ -47,6 +47,7 @@ public class ProductServiceImpl implements ProductService {
         dto.setIsPromotion(product.getIsPromotion());
         dto.setDiscountPercent(product.getDiscountPercent());
         dto.setRating(product.getRating());
+        dto.setOptions(product.getOptions());
         
         if (product.getCategory() != null) {
             CategoryDTO catDto = new CategoryDTO();
@@ -102,6 +103,7 @@ public class ProductServiceImpl implements ProductService {
         product.setDiscountPercent(productDTO.getDiscountPercent() != null ? productDTO.getDiscountPercent() : 0.0);
         product.setRating(productDTO.getRating() != null ? productDTO.getRating() : 0.0);
         product.setCategory(category);
+        product.setOptions(productDTO.getOptions());
 
         List<ProductImage> images = new ArrayList<>();
         if (frontImage != null && !frontImage.isEmpty()) {
@@ -159,6 +161,7 @@ public class ProductServiceImpl implements ProductService {
         product.setIsPromotion(productDTO.getIsPromotion() != null ? productDTO.getIsPromotion() : product.getIsPromotion());
         product.setDiscountPercent(productDTO.getDiscountPercent() != null ? productDTO.getDiscountPercent() : 0.0);
         product.setRating(productDTO.getRating() != null ? productDTO.getRating() : product.getRating());
+        product.setOptions(productDTO.getOptions() != null ? productDTO.getOptions() : product.getOptions());
 
         // Update images if provided
         if (frontImage != null && !frontImage.isEmpty()) {

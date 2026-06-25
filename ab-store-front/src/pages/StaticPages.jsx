@@ -1,9 +1,15 @@
-import { Camera, Headphones, MapPin } from 'lucide-react';
+import { Headphones, MapPin, Smartphone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { FaPhone, FaWhatsapp } from 'react-icons/fa';
 import { useLanguage } from '../context/language';
 import { useToast } from '../context/toast';
 import { contactApi } from '../services/api';
+import {
+  phoneHref,
+  whatsappHref,
+  STORE_PHONE_DISPLAY,
+} from '../config/storeContact';
 
 function PageShell({ eyebrow, title, children }) {
   return (
@@ -19,7 +25,7 @@ function PageShell({ eyebrow, title, children }) {
   );
 }
 
-function InfoCard({ icon, title, text }) {
+function InfoCard({ icon, title, text, children }) {
   const CardIcon = icon;
 
   return (
@@ -27,6 +33,7 @@ function InfoCard({ icon, title, text }) {
       <CardIcon className="h-9 w-9 text-gold" />
       <h2 className="mt-5 text-xl font-bold">{title}</h2>
       <p className="mt-3 text-sm leading-relaxed text-gray-300">{text}</p>
+      {children}
     </div>
   );
 }
@@ -37,7 +44,7 @@ export function About() {
   return (
     <PageShell eyebrow={t('about')} title={t('aboutTitle')}>
       <InfoCard
-        icon={Camera}
+        icon={Smartphone}
         title={t('selectionPremium')}
         text={t('selectionText')}
       />
@@ -103,11 +110,26 @@ export function Contact() {
   return (
     <PageShell eyebrow={t('contact')} title={t('contactTitle')}>
       <InfoCard icon={MapPin} title={t('address')} text={t('addressText')} />
-      <InfoCard
-        icon={Headphones}
-        title={t('support')}
-        text={t('supportText')}
-      />
+      <InfoCard icon={Headphones} title={t('support')} text={t('supportText')}>
+        <div className="mt-4 flex flex-col gap-2">
+          <a
+            href={phoneHref}
+            className="inline-flex items-center gap-2 text-sm text-gray-200 hover:text-gold transition"
+          >
+            <FaPhone size={14} />
+            {STORE_PHONE_DISPLAY}
+          </a>
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sm text-gray-200 hover:text-green-400 transition"
+          >
+            <FaWhatsapp size={16} />
+            {t('whatsappUs')}
+          </a>
+        </div>
+      </InfoCard>
       <div className="rounded-xl border border-gray-800 bg-white/5 p-6">
         <h2 className="text-xl font-bold">{t('quickRequest')}</h2>
         <form className="mt-5 space-y-3" onSubmit={handleSubmit}>

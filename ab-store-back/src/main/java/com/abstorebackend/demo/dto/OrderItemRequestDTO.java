@@ -4,4 +4,5 @@ import lombok.Data;
 public class OrderItemRequestDTO {
     private Long productId;
     private Integer quantity;
+    private String selectedOptions;
 }

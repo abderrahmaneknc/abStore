@@ -11,6 +11,7 @@ import DataTable from '../ui/DataTable';
 import EmptyState from '../ui/EmptyState';
 import Modal from '../ui/Modal';
 import LoadingOverlay from '../ui/LoadingOverlay';
+import { formatSelectedOptions } from '../../utils/productOptions';
 
 export default function OrdersManager() {
   const { orders, updateOrderStatus, removeOrder } = useStore();
@@ -97,7 +98,11 @@ export default function OrdersManager() {
       Baladiya: o.baladiya,
       Adresse: o.fullAddress || o.address || '',
       CodePostal: o.postalCode || '',
-      Articles: (o.items || []).map(i => `${i.name || i.productName || ''} x${i.quantity} (${i.price} DZD)`).join(' | '),
+      Articles: (o.items || []).map(i => {
+        const options = formatSelectedOptions(i.selectedOptions);
+        const label = `${i.name || i.productName || ''} x${i.quantity}${options ? ` (${options})` : ''} (${i.price} DZD)`;
+        return label;
+      }).join(' | '),
       Total: o.total,
       Notes: o.notes || o.additionalNotes || '',
       Date: new Date(o.createdAt).toLocaleDateString(),
@@ -412,7 +417,14 @@ export default function OrdersManager() {
                       <div className="bg-gray-100 text-gray-600 font-medium px-2 py-1 rounded text-xs">
                         x{item.quantity}
                       </div>
-                      <span className="font-medium">{item.name}</span>
+                      <div>
+                        <span className="font-medium">{item.name || item.productName}</span>
+                        {formatSelectedOptions(item.selectedOptions) && (
+                          <p className="text-xs text-muted">
+                            {formatSelectedOptions(item.selectedOptions)}
+                          </p>
+                        )}
+                      </div>
                     </div>
                     <span className="font-semibold">{item.price.toLocaleString()} DZD</span>
                   </div>

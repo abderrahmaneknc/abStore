@@ -12,20 +12,29 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const navigate = useNavigate();
-  const { availableProducts: products } = useCatalog();
+  const { availableProducts: products, visibleCategories } = useCatalog();
   const { cartCount, wishlistCount } = useStore();
   const { language, languages, setLanguage, t } = useLanguage();
 
-  const links = [
-    { label: t('home'), to: '/' },
-    { label: t('shop'), to: '/catalog' },
-    { label: t('about'), to: '/about' },
-    { label: t('contact'), to: '/contact' },
-    { label: t('phones'), to: '/catalog?category=phones' },
-    { label: t('accessories'), to: '/catalog?category=Accessoires' },
-    { label: t('laptop'), to: '/catalog?category=Laptop' },
-    { label: t('shareExperience'), to: '/#feedback-section', isHash: true },
-  ];
+  const links = useMemo(() => {
+    const baseLinks = [
+      { label: t('home'), to: '/' },
+      { label: t('shop'), to: '/catalog' },
+      { label: t('about'), to: '/about' },
+      { label: t('contact'), to: '/contact' },
+    ];
+
+    const categoryLinks = visibleCategories.map((category) => ({
+      label: category.name,
+      to: `/catalog?category=${encodeURIComponent(category.name)}`,
+    }));
+
+    return [
+      ...baseLinks,
+      ...categoryLinks,
+      { label: t('shareExperience'), to: '/#feedback-section', isHash: true },
+    ];
+  }, [t, visibleCategories]);
 
   const suggestions = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -136,12 +145,17 @@ export default function Navbar() {
     </div>
   );
 
+  const navScrollClass =
+    visibleCategories.length > 3
+      ? 'md:flex-nowrap md:overflow-x-auto md:scrollbar-hide md:pb-1'
+      : 'md:flex-wrap lg:justify-center';
+
   return (
     <header className="fixed top-0 w-full z-50 bg-white/95 shadow-sm backdrop-blur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2">
-          <img src={logo} alt="A Logo" className="h-8 w-auto rounded" />
-          <span className="font-semibold whitespace-nowrap">The Phone House </span>
+          <img src={logo} alt="The Phone House" className="h-8 w-auto rounded" />
+          <span className="font-semibold whitespace-nowrap">The Phone House</span>
         </Link>
 
         <div className="hidden w-full max-w-xl lg:block">
@@ -224,7 +238,9 @@ export default function Navbar() {
             </select>
           </div>
 
-          <div className="flex flex-col gap-2 text-sm text-white md:flex-row md:items-center md:gap-2 md:overflow-x-auto md:scrollbar-hide lg:justify-center lg:gap-4">
+          <div
+            className={`flex flex-col gap-2 text-sm text-white md:flex-row md:items-center md:gap-2 lg:gap-4 ${navScrollClass}`}
+          >
             {links.map((link) => {
               if (link.isHash) {
                 return (
@@ -249,7 +265,7 @@ export default function Navbar() {
                         }
                       }
                     }}
-                    className={`rounded-lg px-3 py-2 whitespace-nowrap transition hover:bg-white/10 hover:text-gold text-left`}
+                    className="rounded-lg px-3 py-2 whitespace-nowrap transition hover:bg-white/10 hover:text-gold text-left"
                   >
                     {link.label}
                   </button>
@@ -264,7 +280,7 @@ export default function Navbar() {
                     window.scrollTo(0, 0);
                   }}
                   className={({ isActive }) =>
-                    `rounded-lg px-3 py-2 whitespace-nowrap transition hover:bg-white/10 hover:text-gold ${
+                    `rounded-lg px-3 py-2 whitespace-nowrap transition hover:bg-white/10 hover:text-gold shrink-0 ${
                       isActive && link.to === '/catalog' ? 'text-gold' : ''
                     }`
                   }
