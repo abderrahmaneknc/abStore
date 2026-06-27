@@ -2,8 +2,10 @@ package com.abstorebackend.demo.controllers;
 
 import com.abstorebackend.demo.dto.FeedbackDTO;
 import com.abstorebackend.demo.services.FeedbackService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,32 +17,30 @@ public class FeedbackController {
 
     private final FeedbackService feedbackService;
 
-    // Public: Submit feedback for a product
     @PostMapping
-    public ResponseEntity<FeedbackDTO> submitFeedback(@RequestBody FeedbackDTO feedbackDTO) {
+    public ResponseEntity<FeedbackDTO> submitFeedback(@Valid @RequestBody FeedbackDTO feedbackDTO) {
         return ResponseEntity.ok(feedbackService.submitFeedback(feedbackDTO));
     }
 
-    // Public: Get visible feedbacks for a product
     @GetMapping("/product/{productId}")
     public ResponseEntity<List<FeedbackDTO>> getProductFeedbacks(@PathVariable Long productId) {
         return ResponseEntity.ok(feedbackService.getVisibleFeedbacksForProduct(productId));
     }
 
-    // Admin: Get all feedbacks
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<FeedbackDTO>> getAllFeedbacks() {
         return ResponseEntity.ok(feedbackService.getAllFeedbacks());
     }
 
-    // Admin: Toggle visibility
     @PutMapping("/{id}/visibility")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<FeedbackDTO> toggleVisibility(@PathVariable Long id, @RequestParam boolean visible) {
         return ResponseEntity.ok(feedbackService.toggleVisibility(id, visible));
     }
 
-    // Admin: Delete feedback
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteFeedback(@PathVariable Long id) {
         feedbackService.deleteFeedback(id);
         return ResponseEntity.ok().build();

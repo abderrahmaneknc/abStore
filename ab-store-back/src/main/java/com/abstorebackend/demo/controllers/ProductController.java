@@ -8,8 +8,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @RestController
@@ -18,7 +20,6 @@ import java.util.List;
 public class ProductController {
     private final ProductService productService;
 
-    // Public
     @GetMapping
     public ResponseEntity<Page<ProductDTO>> searchProducts(
             @RequestParam(required = false) String search,
@@ -34,37 +35,34 @@ public class ProductController {
                 search, categoryId, minPrice, maxPrice, brand, productStatus, isNew, isPromotion, pageable));
     }
 
-    // Public
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProduct(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
-    // Admin
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductDTO> createProduct(
             @RequestPart("product") ProductDTO productDTO,
             @RequestPart(value = "frontImage", required = false) MultipartFile frontImage,
             @RequestPart(value = "backImage", required = false) MultipartFile backImage,
             @RequestPart(value = "galleryImages", required = false) List<MultipartFile> galleryImages) {
-        
         return ResponseEntity.ok(productService.createProduct(productDTO, frontImage, backImage, galleryImages));
     }
 
-    // Admin
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductDTO> updateProduct(
             @PathVariable Long id,
             @RequestPart("product") ProductDTO productDTO,
             @RequestPart(value = "frontImage", required = false) MultipartFile frontImage,
             @RequestPart(value = "backImage", required = false) MultipartFile backImage,
             @RequestPart(value = "galleryImages", required = false) List<MultipartFile> galleryImages) {
-        
         return ResponseEntity.ok(productService.updateProduct(id, productDTO, frontImage, backImage, galleryImages));
     }
 
-    // Admin
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.ok().build();

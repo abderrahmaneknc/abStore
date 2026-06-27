@@ -5,22 +5,26 @@ import com.abstorebackend.demo.dto.AuthResponse;
 import com.abstorebackend.demo.dto.PasswordChangeRequest;
 import com.abstorebackend.demo.dto.PasswordResetRequest;
 import com.abstorebackend.demo.entities.AdminUser;
+import com.abstorebackend.demo.exceptions.BadRequestException;
+import com.abstorebackend.demo.exceptions.ResourceNotFoundException;
 import com.abstorebackend.demo.repositories.AdminUserRepository;
 import com.abstorebackend.demo.security.CustomUserDetails;
 import com.abstorebackend.demo.security.JwtService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.util.Map;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -36,7 +40,7 @@ public class AuthController {
     private String adminResetKey;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -45,14 +49,14 @@ public class AuthController {
     }
 
     @PutMapping("/password")
-    public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest request) {
-        if (request.getNewPassword() == null || request.getNewPassword().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "New password must not be empty"));
-        }
-
+    public ResponseEntity<?> changePassword(@Valid @RequestBody PasswordChangeRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         AdminUser adminUser = adminUserRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), adminUser.getPassword())) {
+            throw new BadRequestException("Current password is incorrect");
+        }
 
         adminUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
         adminUserRepository.saveAndFlush(adminUser);
@@ -63,7 +67,7 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(
             @RequestHeader(value = "X-Admin-Reset-Key", required = false) String resetKey,
-            @RequestBody PasswordResetRequest request) {
+            @Valid @RequestBody PasswordResetRequest request) {
         String configuredResetKey = adminResetKey == null ? "" : adminResetKey.trim().replace("\"", "");
 
         if (configuredResetKey.isBlank()) {
@@ -77,13 +81,8 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Invalid admin reset key"));
         }
 
-        if (request.getUsername() == null || request.getUsername().trim().isEmpty()
-                || request.getNewPassword() == null || request.getNewPassword().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Username and new password must not be empty"));
-        }
-
         AdminUser adminUser = adminUserRepository.findByUsername(request.getUsername().trim())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         adminUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
         adminUserRepository.saveAndFlush(adminUser);

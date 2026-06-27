@@ -7,6 +7,7 @@ import com.abstorebackend.demo.entities.Order;
 import com.abstorebackend.demo.entities.OrderItem;
 import com.abstorebackend.demo.entities.Product;
 import com.abstorebackend.demo.enums.OrderStatus;
+import com.abstorebackend.demo.exceptions.BadRequestException;
 import com.abstorebackend.demo.exceptions.ResourceNotFoundException;
 import com.abstorebackend.demo.repositories.OrderRepository;
 import com.abstorebackend.demo.repositories.ProductRepository;
@@ -62,6 +63,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponseDTO createOrder(OrderRequestDTO dto) {
+        if (dto.getItems() == null || dto.getItems().isEmpty()) {
+            throw new BadRequestException("Order must contain at least one item");
+        }
+
         Order order = new Order();
         order.setFirstName(dto.getFirstName());
         order.setLastName(dto.getLastName());
@@ -78,14 +83,13 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (OrderItemRequestDTO itemDto : dto.getItems()) {
-            Product product = productRepository.findById(itemDto.getProductId())
+            Product product = productRepository.findByIdForUpdate(itemDto.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + itemDto.getProductId()));
-            
+
             if (product.getStockQty() < itemDto.getQuantity()) {
                 throw new IllegalStateException("Insufficient stock for product: " + product.getName());
             }
 
-            // Deduct stock
             product.setStockQty(product.getStockQty() - itemDto.getQuantity());
             productRepository.save(product);
 
@@ -114,12 +118,12 @@ public class OrderServiceImpl implements OrderService {
 
         OrderStatus previousStatus = order.getStatus();
 
-        // Restore stock when changing TO cancelled from a non-cancelled status
         if (status == OrderStatus.CANCELED && previousStatus != OrderStatus.CANCELED) {
             if (order.getItems() != null) {
                 for (OrderItem item : order.getItems()) {
                     if (item.getProduct() != null) {
-                        Product product = item.getProduct();
+                        Product product = productRepository.findByIdForUpdate(item.getProduct().getId())
+                                .orElse(item.getProduct());
                         product.setStockQty(product.getStockQty() + item.getQuantity());
                         productRepository.save(product);
                     }
