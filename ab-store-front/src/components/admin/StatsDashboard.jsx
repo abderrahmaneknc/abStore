@@ -28,7 +28,6 @@ export default function StatsDashboard() {
     const averageOrderValue = validOrders.length > 0 ? totalRevenue / validOrders.length : 0;
     const pendingOrders = orders.filter(o => o.status === 'pending').length;
 
-    // Orders by Wilaya
     const wilayaCounts = {};
     orders.forEach(o => {
       if (o.wilaya) {
@@ -40,7 +39,6 @@ export default function StatsDashboard() {
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
 
-    // Order Status Distribution
     const statusCounts = { pending: 0, validated: 0, shipped: 0, delivered: 0, cancelled: 0 };
     orders.forEach(o => {
       if (statusCounts[o.status] !== undefined) statusCounts[o.status]++;
@@ -49,7 +47,6 @@ export default function StatsDashboard() {
       .filter(([_, value]) => value > 0)
       .map(([status, value]) => ({ name: t(status), status, value }));
 
-    // Revenue by Day (last 7 days)
     const last7Days = [...Array(7)].map((_, i) => {
       const d = new Date();
       d.setDate(d.getDate() - i);
@@ -66,7 +63,6 @@ export default function StatsDashboard() {
       };
     });
 
-    // Top Selling Products
     const productSales = {};
     orders.forEach(o => {
       if (o.status !== 'cancelled') {

@@ -55,7 +55,7 @@ export default function ProductsManager() {
   };
 
   const handleSave = async (productData) => {
-    setIsModalOpen(false); // Close immediately so the loading overlay shows over the main page
+    setIsModalOpen(false);
     setIsLoading(true);
     try {
       if (editingProduct) {
@@ -243,7 +243,6 @@ export default function ProductsManager() {
   return (
     <div className="space-y-6">
       <LoadingOverlay isLoading={isLoading} />
-      {/* Header Actions */}
       <div className="flex flex-col gap-3 bg-white p-3 rounded-xl border border-border shadow-sm sm:p-4">
         <div className="relative w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -286,7 +285,6 @@ export default function ProductsManager() {
         </div>
       </div>
 
-      {/* Bulk Actions */}
       {selectedIds.length > 0 && (
         <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
           <span className="text-sm font-medium text-blue-900">{selectedIds.length} {t('selectedProducts')}</span>
@@ -301,7 +299,6 @@ export default function ProductsManager() {
         </div>
       )}
 
-      {/* Products Table */}
       <DataTable 
         columns={columns}
         data={filteredProducts}
@@ -316,7 +313,6 @@ export default function ProductsManager() {
         }
       />
 
-      {/* Product Modal */}
       {isModalOpen && (
         <ProductModal
           isOpen={isModalOpen}

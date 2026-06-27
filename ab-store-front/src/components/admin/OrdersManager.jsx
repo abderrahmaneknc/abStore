@@ -265,7 +265,6 @@ export default function OrdersManager() {
   return (
     <div className="space-y-6">
       <LoadingOverlay isLoading={isLoading} />
-      {/* Filters Bar */}
       <div className="flex flex-col gap-3 bg-white p-3 rounded-xl border border-border shadow-sm sm:p-4">
         <div className="relative w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -315,7 +314,6 @@ export default function OrdersManager() {
         </div>
       </div>
 
-      {/* Bulk Actions */}
       {selectedIds.length > 0 && (
         <div className="bg-red-50 border border-red-200 p-3 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
           <span className="text-sm font-medium text-red-900">{selectedIds.length} {t('selected')}</span>
@@ -325,7 +323,6 @@ export default function OrdersManager() {
         </div>
       )}
 
-      {/* Orders Table */}
       <DataTable 
         columns={columns}
         data={filteredOrders}
@@ -340,7 +337,6 @@ export default function OrdersManager() {
         }
       />
 
-      {/* Order Detail Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

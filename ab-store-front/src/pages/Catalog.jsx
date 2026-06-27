@@ -46,7 +46,6 @@ export default function Catalog() {
   const category = searchParams.get('category') || 'all';
   const sort = searchParams.get('sort') || 'none';
 
-  // Build available brands and categories from all products (fallback to local data)
   const brands = useMemo(
     () => ['all', ...new Set(fallbackProducts.map((product) => product.brand).filter(Boolean))],
     [fallbackProducts]
@@ -57,7 +56,6 @@ export default function Catalog() {
     return ['all', ...new Set([...fromCatalog, ...fromProducts])];
   }, [catalogCategories, fallbackProducts]);
 
-  // Fetch backend categories to map names to IDs
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -82,14 +80,12 @@ export default function Catalog() {
     setSearchParams(next);
   };
 
-  // Helper to get category ID by name
   const getCategoryIdByName = (categoryName) => {
     if (!categoryName || categoryName === 'all') return null;
     const cat = backendCategories.find(c => c.name === categoryName);
     return cat?.id;
   };
 
-  // Fetch filtered products from backend
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -108,7 +104,6 @@ export default function Catalog() {
           params.brand = brand;
         }
 
-        // Map category name to ID for backend API
         const categoryId = getCategoryIdByName(category);
         if (categoryId) {
           params.categoryId = categoryId;
@@ -117,10 +112,8 @@ export default function Catalog() {
         const response = await productApi.search(params);
         let fetchedProducts = Array.isArray(response) ? response : response?.content ?? [];
         
-        // Normalize backend products
         fetchedProducts = fetchedProducts.map(normalizeBackendProduct);
 
-        // Apply sorting on frontend
         if (sort === 'price_asc') {
           fetchedProducts = [...fetchedProducts].sort((a, b) => a.price - b.price);
         } else if (sort === 'price_desc') {
@@ -131,7 +124,6 @@ export default function Catalog() {
       } catch (err) {
         console.error('Failed to fetch products:', err);
         setError(err.message);
-        // Fallback to local products if API fails
         setProducts(fallbackProducts);
       } finally {
         setLoading(false);

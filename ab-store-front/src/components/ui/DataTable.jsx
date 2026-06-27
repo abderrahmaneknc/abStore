@@ -11,7 +11,6 @@ export default function DataTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState(null);
 
-  // Handle sorting
   const handleSort = (key, sortable) => {
     if (!sortable) return;
     let direction = 'asc';
@@ -31,7 +30,6 @@ export default function DataTable({
     return 0;
   });
 
-  // Handle pagination
   const totalPages = Math.ceil(sortedData.length / itemsPerPage);
   const paginatedData = sortedData.slice(
     (currentPage - 1) * itemsPerPage,
@@ -84,7 +82,6 @@ export default function DataTable({
         </table>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between border-t border-border px-6 py-3">
           <span className="text-sm text-muted">

@@ -1,10 +1,23 @@
 import { useState } from 'react';
+import { Trash2 } from 'lucide-react';
 import { useCatalog } from '../../context/catalog';
 import { useLanguage } from '../../context/language';
 import { useToast } from '../../context/toast';
-import { extractColorAndStorage, buildColorStorageOptions, PRESET_COLORS, PRESET_STORAGE } from '../../utils/productOptions';
+import {
+  extractColorAndStorage,
+  extractCustomOptionGroups,
+  buildProductOptions,
+  PRESET_COLORS,
+  PRESET_STORAGE,
+} from '../../utils/productOptions';
 import OptionChipSelector from './OptionChipSelector';
 import Modal from '../ui/Modal';
+
+const createCustomGroup = () => ({
+  id: crypto.randomUUID(),
+  name: '',
+  values: [],
+});
 
 const createEmptyProduct = (category) => ({
   name: '',
@@ -21,6 +34,7 @@ const createEmptyProduct = (category) => ({
   stock: 10,
   colors: [],
   storage: [],
+  customOptionGroups: [],
   frontImageFile: null,
   backImageFile: null,
   galleryImageFiles: [],
@@ -39,6 +53,7 @@ const normalizeInitialProduct = (product) => {
     discountPercent: Number(product.discountPercent ?? product.discount) || 0,
     colors,
     storage,
+    customOptionGroups: extractCustomOptionGroups(product.options),
     galleryImageFiles: [],
     galleryImagesPreview: product.galleryImages || [],
   };
@@ -121,6 +136,29 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
     }));
   };
 
+  const addCustomOptionGroup = () => {
+    setFormData((prev) => ({
+      ...prev,
+      customOptionGroups: [...(prev.customOptionGroups || []), createCustomGroup()],
+    }));
+  };
+
+  const updateCustomOptionGroup = (index, updates) => {
+    setFormData((prev) => ({
+      ...prev,
+      customOptionGroups: prev.customOptionGroups.map((group, groupIndex) =>
+        groupIndex === index ? { ...group, ...updates } : group
+      ),
+    }));
+  };
+
+  const removeCustomOptionGroup = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      customOptionGroups: prev.customOptionGroups.filter((_, groupIndex) => groupIndex !== index),
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave({
@@ -129,7 +167,11 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
       rating: Number(formData.rating),
       discountPercent: formData.isPromo ? Number(formData.discountPercent) || 0 : 0,
       stock: Number(formData.stock),
-      options: buildColorStorageOptions(formData.colors, formData.storage),
+      options: buildProductOptions(
+        formData.colors,
+        formData.storage,
+        formData.customOptionGroups
+      ),
     });
   };
 
@@ -292,6 +334,45 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
                 selected={formData.storage || []}
                 onChange={(values) => updateColorStorage('storage', values)}
               />
+
+              {(formData.customOptionGroups || []).map((group, index) => (
+                <div key={group.id} className="space-y-3 rounded-lg border border-dashed border-gray-300 p-4">
+                  <div className="flex items-start gap-2">
+                    <input
+                      type="text"
+                      value={group.name}
+                      onChange={(e) => updateCustomOptionGroup(index, { name: e.target.value })}
+                      placeholder={t('optionNamePlaceholder')}
+                      className="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gold"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeCustomOptionGroup(index)}
+                      className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                    >
+                      <Trash2 size={14} />
+                      {t('removeOptionGroup')}
+                    </button>
+                  </div>
+                  <OptionChipSelector
+                    label={group.name || t('customOptionValues')}
+                    quickChooseLabel={t('quickChoose')}
+                    customPlaceholder={t('optionValuesPlaceholder')}
+                    addLabel={t('addCustomValue')}
+                    presets={[...new Set(group.values || [])]}
+                    selected={group.values || []}
+                    onChange={(values) => updateCustomOptionGroup(index, { values })}
+                  />
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={addCustomOptionGroup}
+                className="inline-flex items-center rounded-lg border border-dashed border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-gold hover:text-gold"
+              >
+                + {t('addOptionGroup')}
+              </button>
             </div>
           </div>
           <div className="flex items-center gap-6 md:col-span-2 pt-2 border-t border-border mt-2">

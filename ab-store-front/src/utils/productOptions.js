@@ -27,6 +27,21 @@ export const extractColorAndStorage = (options) => {
   return { colors, storage };
 };
 
+export const extractCustomOptionGroups = (options) => {
+  const groups = parseProductOptions(options);
+  return groups
+    .filter(
+      (group) =>
+        !matchesOptionKey(group.name, COLOR_KEYS) &&
+        !matchesOptionKey(group.name, STORAGE_KEYS)
+    )
+    .map((group) => ({
+      id: crypto.randomUUID(),
+      name: group.name,
+      values: [...group.values],
+    }));
+};
+
 export const OPTION_COLOR = 'color';
 export const OPTION_STORAGE = 'storage';
 
@@ -45,7 +60,7 @@ export const PRESET_COLORS = [
 
 export const PRESET_STORAGE = ['64GB', '128GB', '256GB', '512GB', '1TB'];
 
-export const buildColorStorageOptions = (colors = [], storage = []) => {
+export const buildProductOptions = (colors = [], storage = [], customGroups = []) => {
   const groups = [];
   const colorValues = colors.filter(Boolean);
   const storageValues = storage.filter(Boolean);
@@ -57,8 +72,19 @@ export const buildColorStorageOptions = (colors = [], storage = []) => {
     groups.push({ name: OPTION_STORAGE, values: storageValues });
   }
 
-  return groups;
+  customGroups.forEach((group) => {
+    const name = String(group.name || '').trim();
+    const values = (group.values || []).filter(Boolean);
+    if (name && values.length > 0) {
+      groups.push({ name, values });
+    }
+  });
+
+  return mergeOptionGroups(groups);
 };
+
+export const buildColorStorageOptions = (colors = [], storage = []) =>
+  buildProductOptions(colors, storage, []);
 
 const normalizeGroupValues = (values) => {
   if (Array.isArray(values)) {
@@ -91,9 +117,10 @@ const normalizeRawGroup = (group) => {
 };
 
 const canonicalOptionName = (name) => {
-  const normalized = String(name || '').trim().toLowerCase();
-  if (matchesOptionKey(normalized, COLOR_KEYS)) return OPTION_COLOR;
-  if (matchesOptionKey(normalized, STORAGE_KEYS)) return OPTION_STORAGE;
+  const normalized = String(name || '').trim();
+  const lower = normalized.toLowerCase();
+  if (matchesOptionKey(lower, COLOR_KEYS)) return OPTION_COLOR;
+  if (matchesOptionKey(lower, STORAGE_KEYS)) return OPTION_STORAGE;
   return normalized;
 };
 
@@ -101,7 +128,8 @@ const mergeOptionGroups = (groups) => {
   const merged = new Map();
 
   groups.forEach((group) => {
-    const key = canonicalOptionName(group.name);
+    const displayName = canonicalOptionName(group.name);
+    const key = displayName.toLowerCase();
     const existing = merged.get(key);
 
     if (existing) {
@@ -110,7 +138,7 @@ const mergeOptionGroups = (groups) => {
     }
 
     merged.set(key, {
-      name: key,
+      name: displayName,
       values: [...new Set(group.values)],
     });
   });

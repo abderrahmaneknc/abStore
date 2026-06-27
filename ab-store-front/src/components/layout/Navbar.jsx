@@ -5,7 +5,7 @@ import { useCatalog } from '../../context/catalog';
 import { useLanguage } from '../../context/language';
 import { useStore } from '../../context/store';
 import { getProductPrice } from '../../data/products';
-import logo from '../../assets/the_phone_house.jpg';
+import logo from '../../assets/the_phone_logo.png';
 
 function useHorizontalScroll(deps = []) {
   const scrollRef = useRef(null);
@@ -317,8 +317,8 @@ export default function Navbar() {
     <header className="fixed top-0 w-full z-50 bg-white/95 shadow-sm backdrop-blur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3">
         <Link to="/" className="flex shrink-0 items-center gap-2">
-          <img src={logo} alt="The Phone House" className="h-8 w-auto rounded" />
-          <span className="font-semibold whitespace-nowrap">The Phone House</span>
+          <img src={logo} alt="The Phone" className="h-8 w-auto rounded" />
+          <span className="font-semibold whitespace-nowrap">The Phone</span>
         </Link>
 
         <div className="hidden w-full max-w-xl lg:block">
@@ -401,14 +401,12 @@ export default function Navbar() {
             </select>
           </div>
 
-          {/* Mobile menu: vertical main links + horizontal category chips */}
           <div className="flex flex-col gap-2 text-white md:hidden">
             {baseLinks.map((link) => renderStandardLink(link))}
             {categoryLinks.length > 0 && renderMobileCategoryScroll()}
             {renderFeedbackButton()}
           </div>
 
-          {/* Desktop menu: row with scrollable categories when many */}
           <div className="hidden md:flex md:items-center md:gap-2 lg:gap-4 text-sm text-white">
             {baseLinks.map((link) => renderStandardLink(link))}
 

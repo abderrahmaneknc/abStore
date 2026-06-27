@@ -18,23 +18,23 @@ import {
 const socialLinks = [
   {
     Icon: FaFacebookF,
-    href: 'https://www.facebook.com/profile.php?id=100090171853178&mibextid=wwXIfr&rdid=FDRJTIAcWjSfc4JG&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1a5YzhVBDU%2F%3Fmibextid%3DwwXIfr#',
+    href: 'https://www.facebook.com/',
     label: 'Facebook',
   },
   {
     Icon: FaInstagram,
-    href: 'https://www.instagram.com/the__phone_house?igsh=MWNnZTgwZTN5dXVjYg%3D%3D&utm_source=qr',
+    href: 'https://www.instagram.com/',
     label: 'Instagram',
   },
   {
     Icon: FaTiktok,
-    href: 'https://www.tiktok.com/@the.phone.housedz1?_r=1&_t=ZS-92IvwhydPQl',
+    href: 'https://www.tiktok.com/',
     label: 'TikTok',
   },
 ];
 
 const GOOGLE_MAPS_URL =
-  'https://www.google.com/maps?q=5M2V+VW5+The+phone+house,+%D8%B4%D8%A7%D8%B1%D8%B9+%D8%A7%D9%84%D8%B9%D9%82%D9%8A%D8%AF+%D8%B3%D9%8A+%D8%A7%D9%84%D8%AD%D9%88%D8%A7%D8%B3%D8%8C+El+Eulma+19600&ftid=0x12f30b0009be0109:0x9109a88ff7243b9b&entry=gps&lucs=,94259550,94297699,94284457,94231188,94280568,47071704,94218641,94282134,94286869&g_ep=CAISEjI1LjQ5LjkuODM4ODk5MTgzMBgAIIgnKlEsOTQyNTk1NTAsOTQyOTc2OTksOTQyODQ0NTcsOTQyMzExODgsOTQyODA1NjgsNDcwNzE3MDQsOTQyMTg2NDEsOTQyODIxMzQsOTQyODY4NjlCAkRa&skid=57e42c45-fc9e-4659-b427-53156e36067f&g_st=ic';
+  'https://www.google.com/maps?q=Tokyo+Tower,+Minato+City,+Tokyo,+Japan';
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -56,7 +56,7 @@ export default function Footer() {
     <footer className="bg-gray-900 border-t border-gray-800 py-12 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 gap-10 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4">
         <div>
-          <h2 className="text-2xl font-bold text-white mb-4">The Phone House</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">The Phone</h2>
           <p className="text-sm leading-relaxed text-gray-400">
             {t('footerText')}
           </p>

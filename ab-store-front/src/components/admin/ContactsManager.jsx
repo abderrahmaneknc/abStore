@@ -22,7 +22,6 @@ export default function ContactsManager() {
     try {
       setIsLoading(true);
       const data = await contactApi.getAll();
-      // Sort by newest first
       setContacts(data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
     } catch (error) {
       console.error('Failed to fetch contacts:', error);
@@ -46,7 +45,7 @@ export default function ContactsManager() {
 
   const handleDelete = async (contact) => {
     const confirmed = await confirm({
-      title: t('deleteCategoryTitle'), // generic delete title
+      title: t('deleteCategoryTitle'),
       message: `${contact.name} sera supprimé des messages de contact.`,
       confirmLabel: t('remove'),
       cancelLabel: t('cancel')
@@ -220,7 +219,6 @@ export default function ContactsManager() {
     <div className="space-y-6">
       <LoadingOverlay isLoading={isLoading} />
       
-      {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl bg-white p-5 shadow-sm border border-border">
           <p className="text-sm text-muted">{t('totalMessages')}</p>
@@ -251,7 +249,6 @@ export default function ContactsManager() {
         </div>
       )}
 
-      {/* Messages Table */}
       <DataTable 
         columns={columns}
         data={contacts}

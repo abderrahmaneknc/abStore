@@ -235,10 +235,8 @@
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px]">
-          {/* Checkout Form */}
           <div className="space-y-8">
             <form id="checkout-form" onSubmit={handleSubmit} className="space-y-6 rounded-xl border border-border bg-white p-6 shadow-sm">
-              {/* Personal Info */}
               <div>
                 <h2 className="mb-4 text-xl font-bold text-gray-900">{t('personalInfo')}</h2>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -292,7 +290,6 @@
 
               <hr className="border-border" />
 
-              {/* Shipping Address */}
               <div>
                 <h2 className="mb-4 text-xl font-bold text-gray-900">{t('shippingAddress')}</h2>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -353,7 +350,6 @@
 
               <hr className="border-border" />
 
-              {/* Additional Notes */}
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('additionalNotes')}</label>
                 <textarea
@@ -367,12 +363,10 @@
             </form>
           </div>
 
-          {/* Order Summary & Cart Items */}
           <aside className="space-y-6">
             <div className="rounded-xl border border-border bg-gray-900 p-5 text-white sm:p-6 lg:sticky lg:top-32">
               <h2 className="text-2xl font-bold">{t('summary')}</h2>
               
-              {/* Cart Items List Mini */}
               <div className="mt-6 max-h-[520px] space-y-4 overflow-y-auto pr-2 scrollbar-hide">
                 {cartItems.map(({ key, product, quantity, selectedOptions }) => {
                   const optionGroups = parseProductOptions(product.options);

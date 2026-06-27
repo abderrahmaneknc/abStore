@@ -1,19 +1,5 @@
-/**
- * API Service Layer
- *
- * Centralized module for communicating with the Spring Boot backend.
- * In development, requests default to the Vite proxy (/api -> http://localhost:8081/api).
- * In production, set VITE_API_URL to your deployed backend base URL.
- * Example: https://abstore-y9p6.onrender.com/api
- */
-
-// const API_BASE = 'https://abstore-y9p6.onrender.com/api';
-// const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 const API_BASE = 'https://abstore-y9p6.onrender.com/api';
 
-/**
- * Generic fetch wrapper with error handling.
- */
 async function request(endpoint, options = {}) {
   const normalizedEndpoint = endpoint.startsWith('/')
     ? endpoint
@@ -61,62 +47,26 @@ async function request(endpoint, options = {}) {
   return text ? JSON.parse(text) : null;
 }
 
-// ===================================================================
-// Category API
-// ===================================================================
-
 export const categoryApi = {
-  /**
-   * GET /api/categories
-   * @returns {Promise<Array>} list of category objects
-   */
   getAll: () => request('/categories'),
   getAllAdmin: () => request('/categories/all'),
-
-  /**
-   * GET /api/categories/:id
-   * @param {number} id
-   * @returns {Promise<Object>} a single category
-   */
   getById: (id) => request(`/categories/${id}`),
-
-  /**
-   * POST /api/categories
-   * @param {Object} data - { name: string, imageUrl: string }
-   * @returns {Promise<Object>} the created category
-   */
   create: (data) =>
     request('/categories', {
       method: 'POST',
       body: data instanceof FormData ? data : JSON.stringify(data),
     }),
-
-  /**
-   * PUT /api/categories/:id
-   * @param {number} id
-   * @param {Object|FormData} data
-   * @returns {Promise<Object>} the updated category
-   */
   update: (id, data) =>
     request(`/categories/${id}`, {
       method: 'PUT',
       body: data instanceof FormData ? data : JSON.stringify(data),
     }),
-
-  /**
-   * DELETE /api/categories/:id
-   * @param {number} id
-   * @returns {Promise<null>}
-   */
   delete: (id) =>
     request(`/categories/${id}`, {
       method: 'DELETE',
     }),
 };
 
-// ===================================================================
-// Auth API
-// ===================================================================
 export const authApi = {
   login: (credentials) =>
     request('/auth/login', {
@@ -125,9 +75,6 @@ export const authApi = {
     }),
 };
 
-// ===================================================================
-// Product API
-// ===================================================================
 export const productApi = {
   search: async (params) => {
     const query = new URLSearchParams(params).toString();
@@ -138,7 +85,7 @@ export const productApi = {
   create: (formData) =>
     request('/products', {
       method: 'POST',
-      body: formData, // Automatically handles multipart
+      body: formData,
     }),
   update: (id, formData) =>
     request(`/products/${id}`, {
@@ -151,9 +98,6 @@ export const productApi = {
     }),
 };
 
-// ===================================================================
-// Order API
-// ===================================================================
 export const orderApi = {
   create: (data) =>
     request('/orders', {
@@ -172,9 +116,6 @@ export const orderApi = {
     }),
 };
 
-// ===================================================================
-// Feedback API
-// ===================================================================
 export const feedbackApi = {
   submit: (data) =>
     request('/feedback', {
@@ -193,9 +134,6 @@ export const feedbackApi = {
     }),
 };
 
-// ===================================================================
-// Contact API
-// ===================================================================
 export const contactApi = {
   submit: (data) =>
     request('/contact', {
