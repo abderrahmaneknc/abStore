@@ -57,6 +57,10 @@ public class AuthController {
         if (!passwordEncoder.matches(request.getCurrentPassword(), adminUser.getPassword())) {
             throw new BadRequestException("Current password is incorrect");
         }
+        if (passwordEncoder.matches(request.getNewPassword(), adminUser.getPassword())) {
+            throw new BadRequestException(
+                    "New password must be different from the current password");
+        }
 
         adminUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
         adminUserRepository.saveAndFlush(adminUser);
@@ -68,21 +72,33 @@ public class AuthController {
     public ResponseEntity<?> forgotPassword(
             @RequestHeader(value = "X-Admin-Reset-Key", required = false) String resetKey,
             @Valid @RequestBody PasswordResetRequest request) {
-        String configuredResetKey = adminResetKey == null ? "" : adminResetKey.trim().replace("\"", "");
+
+        String configuredResetKey = adminResetKey == null
+                ? ""
+                : adminResetKey.trim().replace("\"", "");
 
         if (configuredResetKey.isBlank()) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body(Map.of("error", "Admin reset key is not configured"));
         }
 
-        if (resetKey == null || resetKey.trim().isBlank() || !MessageDigest.isEqual(
-                resetKey.trim().getBytes(StandardCharsets.UTF_8),
-                configuredResetKey.getBytes(StandardCharsets.UTF_8))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Invalid admin reset key"));
+        if (resetKey == null
+                || resetKey.trim().isBlank()
+                || !MessageDigest.isEqual(
+                        resetKey.trim().getBytes(StandardCharsets.UTF_8),
+                        configuredResetKey.getBytes(StandardCharsets.UTF_8))) {
+
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Invalid admin reset key"));
         }
 
         AdminUser adminUser = adminUserRepository.findByUsername(request.getUsername().trim())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (passwordEncoder.matches(request.getNewPassword(), adminUser.getPassword())) {
+            throw new BadRequestException(
+                    "New password must be different from the current password");
+        }
 
         adminUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
         adminUserRepository.saveAndFlush(adminUser);
