@@ -79,7 +79,7 @@ public class AuthController {
 
         if (configuredResetKey.isBlank()) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                    .body(Map.of("error", "Admin reset key is not configured"));
+                    .body(Map.of("error", "Service temporarily unavailable"));// reset key is invalid or not configured
         }
 
         if (resetKey == null
@@ -89,11 +89,17 @@ public class AuthController {
                         configuredResetKey.getBytes(StandardCharsets.UTF_8))) {
 
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "Invalid admin reset key"));
+                    .body(Map.of("error", "Request denied"));
         }
 
-        AdminUser adminUser = adminUserRepository.findByUsername(request.getUsername().trim())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        AdminUser adminUser = adminUserRepository
+                .findByUsername(request.getUsername().trim())
+                .orElse(null);
+
+        if (adminUser == null) {
+            return ResponseEntity.ok(
+                    Map.of("message", "If the request is valid, it has been processed."));
+        }
 
         if (passwordEncoder.matches(request.getNewPassword(), adminUser.getPassword())) {
             throw new BadRequestException(
