@@ -119,10 +119,19 @@ function validateImageFile(file) {
 }
 
 // ─── Helper: validate FormData image fields before upload ────────────────────
+// Only validates entries under known image field names — never touches
+// the 'product'/'category' JSON part, even if it were ever sent as a File.
+const IMAGE_FIELD_NAMES = new Set([
+  'image',
+  'frontImage',
+  'backImage',
+  'galleryImages',
+]);
+
 function validateFormDataImages(data) {
   if (!(data instanceof FormData)) return;
-  for (const [, value] of data.entries()) {
-    if (value instanceof File) {
+  for (const [key, value] of data.entries()) {
+    if (IMAGE_FIELD_NAMES.has(key) && value instanceof File) {
       validateImageFile(value);
     }
   }
