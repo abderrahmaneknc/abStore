@@ -33,8 +33,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
         String method = request.getMethod();
         String clientKey = resolveClientKey(request);
@@ -57,10 +56,12 @@ public class RateLimitFilter extends OncePerRequestFilter {
         if (HttpMethod.POST.matches(method) && "/api/auth/forgot-password".equals(path)) {
             return new RateLimitRule("reset", RESET_MAX_ATTEMPTS, RESET_WINDOW_SECONDS);
         }
-        if (HttpMethod.POST.matches(method) && (
-                "/api/orders".equals(path)
-                        || "/api/contact".equals(path)
-                        || "/api/feedback".equals(path))) {
+        if (HttpMethod.PUT.matches(method) && "/api/auth/password".equals(path)) {
+            return new RateLimitRule("password-change", LOGIN_MAX_ATTEMPTS, LOGIN_WINDOW_SECONDS);
+        }
+        if (HttpMethod.POST.matches(method) && ("/api/orders".equals(path)
+                || "/api/contact".equals(path)
+                || "/api/feedback".equals(path))) {
             return new RateLimitRule("public-post", PUBLIC_POST_MAX_ATTEMPTS, PUBLIC_POST_WINDOW_SECONDS);
         }
         return null;
@@ -87,7 +88,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
         return request.getRemoteAddr();
     }
 
-    private record RateLimitRule(String name, int maxAttempts, int windowSeconds) {}
+    private record RateLimitRule(String name, int maxAttempts, int windowSeconds) {
+    }
 
     private static final class RateLimitBucket {
         private volatile long windowStart;
