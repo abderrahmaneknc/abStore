@@ -251,9 +251,7 @@ export default function Admin() {
             >
               {t('login')}
             </button>
-            <p className="mt-4 text-center text-xs text-muted">
-              admin / admin
-            </p>
+           
           </form>
         </div>
       </main>

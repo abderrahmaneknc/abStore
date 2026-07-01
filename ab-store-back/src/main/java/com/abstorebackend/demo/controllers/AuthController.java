@@ -49,78 +49,22 @@ public class AuthController {
         }
 
         @PutMapping("/password")
-        public ResponseEntity<?> changePassword(@Valid @RequestBody PasswordChangeRequest request) {
+        public ResponseEntity changePassword(@Valid @RequestBody PasswordChangeRequest request) {
+                String username = SecurityContextHolder.getContext().getAuthentication().getName();
+                AdminUser adminUser = adminUserRepository.findByUsername(username)
+                                .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
 
-                System.out.println("========== CHANGE PASSWORD ==========");
-
-                try {
-                        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-                        System.out.println("Authentication object: " + authentication);
-
-                        if (authentication == null) {
-                                System.out.println("Authentication is NULL");
-                                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                                                .body(Map.of("error", "Not authenticated"));
-                        }
-
-                        System.out.println("Authenticated: " + authentication.isAuthenticated());
-                        System.out.println("Principal: " + authentication.getPrincipal());
-                        System.out.println("Username: " + authentication.getName());
-
-                        String username = authentication.getName();
-
-                        AdminUser adminUser = adminUserRepository.findByUsername(username).orElse(null);
-
-                        if (adminUser == null) {
-                                System.out.println("Admin user not found in database");
-                                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                                .body(Map.of("error", "Authenticated user not found"));
-                        }
-
-                        System.out.println("Admin found: " + adminUser.getUsername());
-
-                        boolean currentPasswordMatches = passwordEncoder.matches(request.getCurrentPassword(),
-                                        adminUser.getPassword());
-
-                        System.out.println("Current password matches: " + currentPasswordMatches);
-
-                        if (!currentPasswordMatches) {
-                                return ResponseEntity.badRequest()
-                                                .body(Map.of("error", "Current password is incorrect"));
-                        }
-
-                        boolean samePassword = passwordEncoder.matches(request.getNewPassword(),
-                                        adminUser.getPassword());
-
-                        System.out.println("New password equals old: " + samePassword);
-
-                        if (samePassword) {
-                                return ResponseEntity.badRequest()
-                                                .body(Map.of("error",
-                                                                "New password must be different from the current password"));
-                        }
-
-                        adminUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
-
-                        adminUserRepository.saveAndFlush(adminUser);
-
-                        System.out.println("Password updated successfully.");
-
-                        return ResponseEntity.ok(
-                                        Map.of("message", "Password changed successfully"));
-
-                } catch (Exception e) {
-
-                        System.out.println("===== EXCEPTION =====");
-                        e.printStackTrace();
-
-                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                        .body(Map.of(
-                                                        "error", "Internal server error",
-                                                        "exception", e.getClass().getSimpleName(),
-                                                        "message", e.getMessage()));
+                if (!passwordEncoder.matches(request.getCurrentPassword(), adminUser.getPassword())) {
+                        throw new BadRequestException("Current password is incorrect");
                 }
+                if (passwordEncoder.matches(request.getNewPassword(), adminUser.getPassword())) {
+                        throw new BadRequestException("New password must be different from the current password");
+                }
+
+                adminUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+                adminUserRepository.saveAndFlush(adminUser);
+
+                return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
         }
 
         @PostMapping("/forgot-password")
