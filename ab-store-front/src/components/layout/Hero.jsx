@@ -27,7 +27,7 @@ export default function Hero() {
         playsInline
         className="absolute w-full h-full object-cover"
       >
-        <source src="/iphone.mp4" type="video/mp4" />
+        <source src="/iphone2.mp4" type="video/mp4" />
       </video>
 
       <div className="absolute inset-0 bg-black/70"></div>
