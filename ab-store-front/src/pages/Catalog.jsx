@@ -59,7 +59,7 @@ export default function Catalog() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const cats = await categoryApi.getAllAdmin();
+        const cats = await categoryApi.getAll();
         setBackendCategories(Array.isArray(cats) ? cats : []);
       } catch (err) {
         console.error('Failed to fetch categories:', err);
@@ -82,7 +82,7 @@ export default function Catalog() {
 
   const getCategoryIdByName = (categoryName) => {
     if (!categoryName || categoryName === 'all') return null;
-    const cat = backendCategories.find(c => c.name === categoryName);
+    const cat = backendCategories.find(c => c.name.toLowerCase() === categoryName.toLowerCase());
     return cat?.id;
   };
 

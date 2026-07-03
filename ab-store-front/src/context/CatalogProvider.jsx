@@ -101,7 +101,17 @@ export function CatalogProvider({ children }) {
   useEffect(() => {
     const loadBackendData = async () => {
       try {
-        const apiCategories = await categoryApi.getAllAdmin();
+        let apiCategories;
+        const hasToken = !!window.localStorage.getItem('token');
+        if (hasToken) {
+          try {
+            apiCategories = await categoryApi.getAllAdmin();
+          } catch (err) {
+            apiCategories = await categoryApi.getAll();
+          }
+        } else {
+          apiCategories = await categoryApi.getAll();
+        }
         if (Array.isArray(apiCategories) && apiCategories.length > 0) {
           setCategories(apiCategories.map(normalizeCategory));
         }
